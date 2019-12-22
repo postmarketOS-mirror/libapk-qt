@@ -1,0 +1,4 @@
+[submodule "apk-tools"]
+	path = apk-tools
+	url = https://gitlab.alpinelinux.org/alpine/apk-tools.git
+	branch = master
