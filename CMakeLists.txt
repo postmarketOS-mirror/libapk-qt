@@ -135,15 +135,9 @@ set_source_files_properties(
     COMPILE_DEFINITIONS restrict=__restrict
 )
 
-set(LIB_SOURCES
-    src/QtApk.h
-    src/QtApk.cpp
-)
-
 add_library(apk
     ${APKTOOLS_SOURCES}
     ${APKTOOLS_HEADERS}
-    ${LIB_SOURCES}
 )
 
 target_compile_definitions(apk PRIVATE
@@ -160,6 +154,22 @@ target_link_libraries(apk PRIVATE
     OpenSSL::SSL
     OpenSSL::Crypto
 )
+
+
+set(QTAPK_SOURCES
+    src/QtApk.h
+    src/QtApk.cpp
+)
+
+
+add_library(apk-qt
+    ${QTAPK_SOURCES}
+)
+
+target_include_directories(apk-qt PRIVATE ${APKTOOLS_DIR})
+
+target_link_libraries(apk-qt PRIVATE apk)
+
 
 if (BUILD_SHARED_LIBS)
     # Shared libraries should be build with -fPIC
