@@ -18,6 +18,7 @@ set(CMAKE_C_STANDARD 90)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 find_package(OpenSSL REQUIRED)
+find_package(ZLIB REQUIRED)
 
 add_definitions(
     -DQT_NO_CAST_TO_ASCII
@@ -139,22 +140,23 @@ set(LIB_SOURCES
     src/QtApk.cpp
 )
 
-add_library(${PROJECT_NAME}
+add_library(apk
     ${APKTOOLS_SOURCES}
     ${APKTOOLS_HEADERS}
     ${LIB_SOURCES}
 )
 
-target_compile_definitions(${PROJECT_NAME} PRIVATE
+target_compile_definitions(apk PRIVATE
     APK_VERSION=\"${PROJECT_VERSION}\"
 )
 
-target_include_directories(${PROJECT_NAME} PUBLIC
+target_include_directories(apk PUBLIC
     ${APKTOOLS_DIR}/libfetch
 )
 
-target_link_libraries(${PROJECT_NAME} PRIVATE
+target_link_libraries(apk PRIVATE
     fetch
+    ZLIB::ZLIB
     OpenSSL::SSL
     OpenSSL::Crypto
 )
@@ -162,14 +164,13 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 if (BUILD_SHARED_LIBS)
     # Shared libraries should be build with -fPIC
     # allpies also to a static library that is linked into shared
-    set_target_properties(
-        fetch ${PROJECT_NAME}
+    set_target_properties(fetch apk
         PROPERTIES
         POSITION_INDEPENDENT_CODE ON
     )
 endif()
 
-install(TARGETS ${PROJECT_NAME}
+install(TARGETS apk
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
