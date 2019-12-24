@@ -10,6 +10,7 @@ include(FeatureSummary)
 
 set(APKTOOLS_DIR "apk-tools" CACHE STRING "Path to Alpine apk-tools source directory")
 option(BUILD_SHARED_LIBS "Build shared libraries" ON)
+option(BUILD_TESTING "Build tests (for developers)" OFF)
 
 # some really really useful settings from KDE's extra-cmake-modules
 set(CMAKE_CXX_STANDARD 11)
@@ -189,5 +190,9 @@ install(TARGETS apk
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
+
+if (BUILD_TESTING)
+    add_subdirectory(tests)
+endif()
 
 feature_summary(WHAT ALL FATAL_ON_MISSING_REQUIRED_PACKAGES)
