@@ -19,6 +19,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 find_package(OpenSSL REQUIRED)
 find_package(ZLIB REQUIRED)
+find_package(Qt5 CONFIG REQUIRED COMPONENTS Core)
 
 add_definitions(
     -DQT_NO_CAST_TO_ASCII
@@ -166,9 +167,12 @@ add_library(apk-qt
     ${QTAPK_SOURCES}
 )
 
-target_include_directories(apk-qt PRIVATE ${APKTOOLS_DIR})
+target_include_directories(apk-qt PUBLIC ${APKTOOLS_DIR}/src)
 
-target_link_libraries(apk-qt PRIVATE apk)
+target_link_libraries(apk-qt PRIVATE
+    apk
+    Qt5::Core
+)
 
 
 if (BUILD_SHARED_LIBS)
