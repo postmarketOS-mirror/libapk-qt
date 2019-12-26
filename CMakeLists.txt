@@ -68,11 +68,20 @@ add_custom_command(
     VERBATIM
     COMMAND ${CMAKE_CURRENT_LIST_DIR}/${APKTOOLS_DIR}/libfetch/errlist.sh http_errlist http ${CMAKE_CURRENT_LIST_DIR}/${APKTOOLS_DIR}/libfetch/http.errors > ${CMAKE_CURRENT_LIST_DIR}/${APKTOOLS_DIR}/libfetch/httperr.h
 )
+
 add_custom_command(
     OUTPUT ${APKTOOLS_DIR}/libfetch/ftperr.h
     COMMENT "Generating error header ftperr.h"
     VERBATIM
     COMMAND ${CMAKE_CURRENT_LIST_DIR}/${APKTOOLS_DIR}/libfetch/errlist.sh ftp_errlist ftp ${CMAKE_CURRENT_LIST_DIR}/${APKTOOLS_DIR}/libfetch/ftp.errors > ${CMAKE_CURRENT_LIST_DIR}/${APKTOOLS_DIR}/libfetch/ftperr.h
+)
+
+add_custom_target(
+    apply_apk_tools_patches
+    COMMENT "Applying custom patches for apk-tools..."
+    WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/${APKTOOLS_DIR}
+    VERBATIM
+    COMMAND git apply ../apk-tools-patches/cpp-compat.patch || true
 )
 
 set(APKTOOLS_SOURCES
@@ -142,6 +151,9 @@ add_library(apk
     ${APKTOOLS_HEADERS}
 )
 
+# Always apply patches before trying to build libapk
+add_dependencies(apk apply_apk_tools_patches)
+
 target_compile_definitions(apk PRIVATE
     APK_VERSION=\"${PROJECT_VERSION}\"
 )
@@ -178,7 +190,7 @@ target_link_libraries(apk-qt PRIVATE
 
 if (BUILD_SHARED_LIBS)
     # Shared libraries should be build with -fPIC
-    # allpies also to a static library that is linked into shared
+    # applies also to a static library that is linked into shared one
     set_target_properties(fetch apk
         PROPERTIES
         POSITION_INDEPENDENT_CODE ON
