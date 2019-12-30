@@ -1,4 +1,6 @@
 #include "QtApk.h"
+#include <QDebug>
+#include <QLoggingCategory>
 
 extern "C" {
 #include "apk_blob.h"
@@ -6,6 +8,8 @@ extern "C" {
 #include "apk_defines.h"
 #include "apk_version.h"
 }
+
+Q_LOGGING_CATEGORY(LOG_QTAPK, "qtapk", QtDebugMsg);
 
 namespace QtApk {
 
@@ -44,6 +48,34 @@ public:
         return;
     }
 
+#ifdef QTAPK_DEVELOPER_BUILD
+
+    void print_installed() {
+        struct apk_installed_package *ipkg;
+        ipkg = list_entry((&db->installed.packages)->next,
+                          struct apk_installed_package,
+                          installed_pkgs_list);
+        if (!ipkg) {
+            qCDebug(LOG_QTAPK) << "No installed packages!";
+            return;
+        }
+
+        if (ipkg->installed_pkgs_list.next == &db->installed.packages) {
+            qCDebug(LOG_QTAPK) << "No installed packages!";
+            return;
+        }
+
+        qCDebug(LOG_QTAPK) << "Installed packages:";
+        while (ipkg) {
+            qCDebug(LOG_QTAPK) << "    " << ipkg->pkg->name->name;
+
+            ipkg = list_entry(ipkg->installed_pkgs_list.next,
+                              typeof(*ipkg), installed_pkgs_list);
+        }
+    }
+
+#endif
+
     Database *q_ptr = nullptr;
     Q_DECLARE_PUBLIC(Database)
 
@@ -71,6 +103,16 @@ void Database::close()
     Q_D(Database);
     d->close();
 }
+
+#ifdef QTAPK_DEVELOPER_BUILD
+
+void Database::print_installed()
+{
+    Q_D(Database);
+    d->print_installed();
+}
+
+#endif
 
 
 } // namespace QtApk
