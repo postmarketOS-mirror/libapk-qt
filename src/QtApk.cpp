@@ -24,31 +24,51 @@ public:
     }
 
     bool open() {
-        memset(&opts, 0, sizeof(opts));
-        opts.open_flags = APK_OPENF_READ | APK_OPENF_WRITE | APK_OPENF_CREATE | APK_OPENF_NO_AUTOUPDATE;
-        list_init(&opts.repository_list);
-        apk_atom_init();
-        db = static_cast<struct apk_database *>(malloc(sizeof(struct apk_database)));
-        apk_db_init(db);
-        int r = apk_db_open(db, &opts);
+        int r = dbopen(APK_OPENF_READ | APK_OPENF_WRITE | APK_OPENF_CACHE_WRITE
+                       | APK_OPENF_CREATE | APK_OPENF_NO_AUTOUPDATE);
         if (r != 0) {
-            free(db);
-            db = nullptr;
+            dbclose();
+            return false;
+        }
+        return true;
+    }
+
+    bool openAndUpdate() {
+        int r = dbopen(APK_OPENF_READ | APK_OPENF_WRITE | APK_OPENF_CACHE_WRITE
+                       | APK_OPENF_CREATE);
+        if (r != 0) {
+            dbclose();
             return false;
         }
         return true;
     }
 
     void close() {
-        if (db) {
-            apk_db_close(db);
-            free(db);
-            db = nullptr;
-        }
+        dbclose();
         return;
     }
 
+private:
+    int dbopen(unsigned long open_flags) {
+        memset(&db_opts, 0, sizeof(db_opts));
+        db_opts.open_flags = open_flags;
+        list_init(&db_opts.repository_list);
+        apk_atom_init();
+        db = static_cast<struct apk_database *>(malloc(sizeof(struct apk_database)));
+        apk_db_init(db);
+        return apk_db_open(db, &db_opts);
+    }
+
+    void dbclose() {
+        if (db) {
+            apk_db_close(db);
+            free(db);
+        }
+        db = nullptr;
+    }
+
 #ifdef QTAPK_DEVELOPER_BUILD
+public:
 
     void print_installed() {
         struct apk_installed_package *ipkg;
@@ -79,7 +99,7 @@ public:
     Database *q_ptr = nullptr;
     Q_DECLARE_PUBLIC(Database)
 
-    struct apk_db_options opts;
+    struct apk_db_options db_opts;
     struct apk_database *db = nullptr;
 };
 
