@@ -11,6 +11,7 @@ include(FeatureSummary)
 set(APKTOOLS_DIR "apk-tools" CACHE STRING "Path to Alpine apk-tools source directory")
 option(BUILD_SHARED_LIBS "Build shared libraries" ON)
 option(BUILD_TESTING "Build tests (for developers)" OFF)
+option(BUILD_DEVELOPER_MODE "Developer build (extra debug output, larger binaries, only for developers!)" OFF)
 
 # some really really useful settings from KDE's extra-cmake-modules
 set(CMAKE_CXX_STANDARD 11)
@@ -180,7 +181,16 @@ add_library(apk-qt
     ${QTAPK_SOURCES}
 )
 
-target_include_directories(apk-qt PUBLIC ${APKTOOLS_DIR}/src)
+if (BUILD_DEVELOPER_MODE)
+    target_compile_definitions(apk-qt PRIVATE
+        QTAPK_DEVELOPER_BUILD
+    )
+    message(STATUS "You have enabled DEVELOPER_BUILD! Don't use it in production, it is for development only!")
+endif()
+
+target_include_directories(apk-qt PUBLIC
+    ${APKTOOLS_DIR}/src
+)
 
 target_link_libraries(apk-qt PRIVATE
     apk
@@ -191,7 +201,7 @@ target_link_libraries(apk-qt PRIVATE
 if (BUILD_SHARED_LIBS)
     # Shared libraries should be build with -fPIC
     # applies also to a static library that is linked into shared one
-    set_target_properties(fetch apk
+    set_target_properties(fetch apk apk-qt
         PROPERTIES
         POSITION_INDEPENDENT_CODE ON
     )
