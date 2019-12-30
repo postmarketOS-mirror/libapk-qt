@@ -12,6 +12,8 @@ public:
     bool open();
     void close();
 
+    bool update(bool allow_untrusted = false);
+
 #ifdef QTAPK_DEVELOPER_BUILD
     void print_installed();
 #endif
