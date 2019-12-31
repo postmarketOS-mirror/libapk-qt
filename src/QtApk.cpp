@@ -169,7 +169,9 @@ public:
         }
 
         qCDebug(LOG_QTAPK) << "Installed packages:";
-        while (ipkg) {
+        const struct list_head *ipkg_end = &db->installed.packages;
+        //while (ipkg) {
+        while (&ipkg->installed_pkgs_list != ipkg_end) {
             qCDebug(LOG_QTAPK) << "    " << ipkg->pkg->name->name;
 
             ipkg = list_entry(ipkg->installed_pkgs_list.next,
