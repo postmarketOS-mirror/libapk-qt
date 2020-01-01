@@ -174,6 +174,7 @@ target_link_libraries(apk PRIVATE
 set(QTAPK_SOURCES
     src/QtApk.h
     src/QtApk.cpp
+    src/errorstr.cpp
 )
 
 
