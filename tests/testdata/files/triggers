@@ -1,0 +1,15 @@
+Q1Vk4cfmWZc4HJbQWUxddrzXgXKrk= /bin /usr/bin /sbin /usr/sbin /lib/modules/*
+Q1sTxfTVZjCk1NTyVYtsnjq7GWKKc= /lib/modules/*
+Q1ttJpLrffAqncm3nwmyFZBxfTnDM= /usr/share/kernel/*
+Q1awp8UL1Bx63TV+3E2H5yy57KriQ= /boot
+Q1ywDIS/Z1KQHd/y6aJTLz87FseBQ= /lib/udev/rules.d /usr/lib/udev/rules.d
+Q1QWHYHlwqBnmaE3ZmYLJ6zLNUPTI= /usr/share/fonts/*
+Q10epzhzeDbMB8HGVeevcDNh0u83M= /usr/share/fonts/*
+Q1mCrcDZxQRV0ATW0nGortBz2vgQo= /usr/share/glib-2.0/schemas /usr/lib/gio/modules
+Q1x7wiaL6eI4+KNXwpfpp6vJGMuZ8= /etc/dbus-1/system.d
+Q1EHLWNdYBE1ddhyEPJ1TirGi4kQc= /usr/lib/pango/*/modules
+Q1JrUUrAHhL6cH1HYcSHzTBuXRxF0= /usr/share/mime
+Q1AVfnZF6eFgzM52EHsM6nwEoBKX8= /usr/lib/gdk-pixbuf-2.0/*/loaders
+Q1gYZW+x2yUh9bghh29e97HTh5KIQ= /usr/share/icons/*
+Q1PyNmoOHzsZRfvnzNVes4yeVFPgE= /usr/share/app-info/*
+Q15aJZs6faHsrqk6dPsDiIJpdMRyQ= /usr/share/ca-certificates /usr/local/share/ca-certificates /etc/ssl/certs /etc/ca-certificates/update.d
