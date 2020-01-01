@@ -23,11 +23,28 @@ public:
     
     /**
      * @brief Database default constructor
-     * @param fakeRoot can be set to operate on some chroot.
      */
-    Database(const QString& fakeRoot = QString());
+    Database();
 
 public:
+    /**
+     * @brief setUseFakeRoot
+     * You can set a path for apk to operate inside. All paths
+     * that libapk will access will be relative to that directory.
+     * This should be called before open(), otherwise it will
+     * have no effect.
+     * @param fakeRoot - can be set to path to operate in chroot.
+     */
+    void setUseFakeRoot(const QString& fakeRoot);
+
+    /**
+     * @brief fakeRoot
+     * Returns currently set fake root.
+     * @see setUseFakeRoot()
+     * @return currently set fake root.
+     */
+    QString fakeRoot() const;
+
     /**
      * @brief open
      * Open package database. Call this before doing anything
@@ -99,6 +116,7 @@ public:
 private:
     DatabasePrivate *d_ptr = nullptr;
     Q_DECLARE_PRIVATE(Database)
+    Q_DISABLE_COPY(Database)
 };
 
 } // namespace QtApk

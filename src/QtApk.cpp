@@ -238,16 +238,28 @@ public:
 ///////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////
 
-Database::Database(const QString &fakeRoot)
+Database::Database()
     : d_ptr(new DatabasePrivate(this))
 {
-    d_ptr->fakeRoot = fakeRoot;
+}
+
+void Database::setUseFakeRoot(const QString &fakeRoot)
+{
+    Q_D(Database);
+    if (isOpen()) return;
+    d->fakeRoot = fakeRoot;
+}
+
+QString Database::fakeRoot() const
+{
+    Q_D(const Database);
+    return d->fakeRoot;
 }
 
 bool Database::open(DbOpenFlags flags)
 {
     Q_D(Database);
-    // map flags from API enum to libapk defines
+    // map flags from DbOpenFlags enum to libapk defines
     unsigned long openf = 0;
     switch (flags) {
     case QTAPK_OPENF_READONLY:
