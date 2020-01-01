@@ -78,7 +78,7 @@ public:
         return res;
     }
 
-    bool count_upgrades(int &num_install, int &num_remove, int &num_adjust) {
+    bool count_upgrades(int *num_install, int *num_remove, int *num_adjust) {
         if (!isOpen()) {
             qCWarning(LOG_QTAPK) << "count_upgrades: Database is not open!";
             return false;
@@ -99,9 +99,9 @@ public:
         if (r == 0) {
             // r = apk_solver_commit_changeset(db, &changeset, db->world);
             // ^^ This probably actually applies upgrade, don't do that
-            num_install = changeset.num_install;
-            num_remove = changeset.num_remove;
-            num_adjust = changeset.num_adjust;
+            *num_install = changeset.num_install;
+            *num_remove = changeset.num_remove;
+            *num_adjust = changeset.num_adjust;
             qCDebug(LOG_QTAPK) << "To install:" << num_install;
             qCDebug(LOG_QTAPK) << "To remove:" << num_remove;
             qCDebug(LOG_QTAPK) << "To adjust:" << num_adjust;
@@ -250,11 +250,26 @@ int Database::upgradeablePackagesCount()
     Q_D(Database);
     int total_upgrades = 0, num_install = 0,
             num_remove = 0, num_adjust = 0;
-    if (d->count_upgrades(num_install, num_remove, num_adjust)) {
+    if (d->count_upgrades(&num_install, &num_remove, &num_adjust)) {
         // Don't count packages to remove
         total_upgrades = num_install + num_adjust;
     }
     return total_upgrades;
+}
+
+bool Database::upgrade()
+{
+    return false;
+}
+
+bool Database::add(const QString &packageNameSpec)
+{
+    return false;
+}
+
+bool Database::del(const QString &packageNameSpec)
+{
+    return false;
 }
 
 #ifdef QTAPK_DEVELOPER_BUILD

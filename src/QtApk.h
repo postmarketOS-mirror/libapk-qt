@@ -22,13 +22,14 @@ public:
     };
     
     /**
-     * Default constructor
-     * @param fakeRoot can be set to open database in some chroot.
+     * @brief Database default constructor
+     * @param fakeRoot can be set to operate on some chroot.
      */
     Database(const QString& fakeRoot = QString());
 
 public:
     /**
+     * @brief open
      * Open package database. Call this before doing anything
      * @param flags database open flags
      * @return true, if opened OK 
@@ -41,11 +42,13 @@ public:
     void close();
     
     /**
+     * @brief isOpen
      * @return true if database is currently open.
      */
     bool isOpen() const;
 
     /**
+     * @brief updatePackageIndex
      * Updates all packages repositories. Database needs to be
      * opened for writing.
      * @param allow_untrusted Ignore signature checking
@@ -54,11 +57,38 @@ public:
     bool updatePackageIndex(bool allow_untrusted = false);
     
     /**
+     * @brief upgradeablePackagesCount
      * Calculates how many packages in the world can be upgraded.
      * Database needs to be opened for reading.
-     * @return number of packages that can be upgraded
+     * @return rough number of packages that can be upgraded
      */
     int upgradeablePackagesCount();
+
+    /**
+     * @brief upgrade
+     * Upgrade world.
+     * Database needs to be opened for writing.
+     * @return true if everything was OK
+     */
+    bool upgrade();
+
+    /**
+     * @brief add
+     * Add a package to world (install).
+     * Database needs to be opened for writing.
+     * @param packageNameSpec package name specifier
+     * @return true if everything was OK
+     */
+    bool add(const QString &packageNameSpec);
+
+    /**
+     * @brief del
+     * Delete package from world (uninstall).
+     * Database needs to be opened for writing.
+     * @param packageNameSpec package name specifier
+     * @return true if everything was OK
+     */
+    bool del(const QString &packageNameSpec);
 
 #ifdef QTAPK_DEVELOPER_BUILD
     // extra debugging functions here, not part of
