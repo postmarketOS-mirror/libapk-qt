@@ -81,6 +81,10 @@ private:
     int dbopen(unsigned long open_flags) {
         memset(&db_opts, 0, sizeof(db_opts));
         db_opts.open_flags = open_flags;
+        // apply "fake" root, if set
+        if (!fakeRoot.isEmpty()) {
+            db_opts.root = fakeRoot.toLocal8Bit().constData();
+        }
         list_init(&db_opts.repository_list);
         apk_atom_init();
         db = static_cast<struct apk_database *>(malloc(sizeof(struct apk_database)));
@@ -150,11 +154,14 @@ public:
 
 #endif
 
+    // Qt's PIMPL members
     Database *q_ptr = nullptr;
     Q_DECLARE_PUBLIC(Database)
     
-    QString fakeRoot;
+    //
+    QString fakeRoot; //! if set, libapk will operate inside this virtual root dir
 
+    // libapk structs
     struct apk_db_options db_opts;
     struct apk_database *db = nullptr;
 };
