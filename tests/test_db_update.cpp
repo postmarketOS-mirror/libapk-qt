@@ -18,6 +18,7 @@ int main()
         qWarning() << "WARNING: Failed to update DB!";
     } else {
         qDebug() << "OK: DB was updated!";
+        qDebug() << db.upgradeablePackagesCount() << " packages can be updated.";
     }
 
     db.close();
