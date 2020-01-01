@@ -145,7 +145,7 @@ private:
         db_opts.open_flags = open_flags;
         // apply "fake" root, if set
         if (!fakeRoot.isEmpty()) {
-            db_opts.root = fakeRoot.toLocal8Bit().constData();
+            db_opts.root = strdup(fakeRoot.toUtf8().constData());
         }
         list_init(&db_opts.repository_list);
         apk_atom_init();
@@ -243,11 +243,11 @@ Database::Database()
 {
 }
 
-void Database::setUseFakeRoot(const QString &fakeRoot)
+void Database::setUseFakeRoot(const QString &fakeRootDir)
 {
     Q_D(Database);
     if (isOpen()) return;
-    d->fakeRoot = fakeRoot;
+    d->fakeRoot = fakeRootDir;
 }
 
 QString Database::fakeRoot() const

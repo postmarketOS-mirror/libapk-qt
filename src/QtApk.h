@@ -35,7 +35,7 @@ public:
      * have no effect.
      * @param fakeRoot - can be set to path to operate in chroot.
      */
-    void setUseFakeRoot(const QString& fakeRoot);
+    void setUseFakeRoot(const QString& fakeRootDir);
 
     /**
      * @brief fakeRoot
