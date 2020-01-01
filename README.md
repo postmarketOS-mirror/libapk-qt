@@ -1,8 +1,13 @@
 # libapk-qt
 
-Alpine Package Keeper (apk) Qt bindings
+Alpine Package Keeper (apk) C++/Qt bindings
 
-# Building
+Aim is to provide a simple high-level
+(sometimes maybe even over-simplified)
+interface to Alpine Linux's libapk
+(which does not even exist yet).
+
+## Building
 
 Need to fetch Alpine's apk-tools sources from another repository:
 
@@ -17,14 +22,13 @@ sudo apk add make cmake gcc g++
 sudo apk add openssl-dev zlib-dev qt5-qtbase-dev
 ```
 
-Then a usual cmake build process:
+Then a usual cmake build process, for example:
 
 ```
 mkdir build
 cmake -S . -B build/ -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=/usr
-cd build
-cmake --build . -j8
-sudo cmake --build . --target install
+cmake --build build/ -j8
+sudo cmake --build build/ --target install
 ```
 
 Requirements are only:
