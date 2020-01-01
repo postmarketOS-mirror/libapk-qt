@@ -15,3 +15,12 @@ if (BUILD_DEVELOPER_MODE)
         QTAPK_DEVELOPER_BUILD
     )
 endif()
+
+add_executable(test_fakeroot test_fakeroot.cpp)
+target_link_libraries(test_fakeroot apk-qt Qt5::Core)
+target_include_directories(test_fakeroot PRIVATE ../src)
+if (BUILD_DEVELOPER_MODE)
+    target_compile_definitions(test_fakeroot PRIVATE
+        QTAPK_DEVELOPER_BUILD
+    )
+endif()
