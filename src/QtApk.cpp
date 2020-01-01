@@ -26,6 +26,7 @@ extern const char *qtapk_error_str(int error);
 class DatabasePrivate
 {
 public:
+    // predefined sets of libapk database open flags
     static const unsigned long DBOPENF_READONLY = APK_OPENF_READ
             | APK_OPENF_NO_AUTOUPDATE;
     static const unsigned long DBOPENF_READWRITE = APK_OPENF_READ
@@ -37,7 +38,8 @@ public:
     {
     }
     
-    bool open(unsigned long open_flags) {
+    bool open(unsigned long open_flags)
+    {
         int r = dbopen(open_flags);
         if (r != 0) {
             dbclose();
@@ -46,17 +48,20 @@ public:
         return true;
     }
 
-    void close() {
+    void close()
+    {
         dbclose();
         return;
     }
     
-    bool isOpen() const {
+    bool isOpen() const
+    {
         if (!db) return false;
         return (db->open_complete != 0);
     }
 
-    bool update(bool allow_untrusted = false) {
+    bool update(bool allow_untrusted = false)
+    {
         if (!isOpen()) {
             qCWarning(LOG_QTAPK) << "update: Database is not open!";
             return false;
@@ -64,7 +69,9 @@ public:
         // apk_repository_update() // is not public?? why, libapk??
         // update each repo
         bool res = true;
-        for (unsigned int i = APK_REPOSITORY_FIRST_CONFIGURED; i < db->num_repos; i++) {
+        for (unsigned int i = APK_REPOSITORY_FIRST_CONFIGURED;
+             i < db->num_repos; i++)
+        {
             // skip always-configured cache repo
             if (i == APK_REPOSITORY_CACHED) {
                 continue;
@@ -78,7 +85,9 @@ public:
         return res;
     }
 
-    bool count_upgrades(int *num_install, int *num_remove, int *num_adjust) {
+    bool upgrade(int *num_install, int *num_remove, int *num_adjust,
+                 bool only_simulate)
+    {
         if (!isOpen()) {
             qCWarning(LOG_QTAPK) << "count_upgrades: Database is not open!";
             return false;
@@ -86,6 +95,7 @@ public:
 
         struct apk_changeset changeset = {};
         int r;
+        bool ret = false;
 
         if (apk_db_check_world(db, db->world) != 0) {
             qCWarning(LOG_QTAPK) << "Missing repository tags. Use "
@@ -93,31 +103,44 @@ public:
             return false;
         }
 
-        // Do a "fake" upgrade run, just calculate what will be done
+        // Calculate what will be done
         unsigned short solver_flags = APK_SOLVERF_UPGRADE;
         r = apk_solver_solve(db, solver_flags, db->world, &changeset);
         if (r == 0) {
-            // r = apk_solver_commit_changeset(db, &changeset, db->world);
-            // ^^ This probably actually applies upgrade, don't do that
+            ret = true;
             *num_install = changeset.num_install;
             *num_remove = changeset.num_remove;
             *num_adjust = changeset.num_adjust;
-            qCDebug(LOG_QTAPK) << "To install:" << num_install;
-            qCDebug(LOG_QTAPK) << "To remove:" << num_remove;
-            qCDebug(LOG_QTAPK) << "To adjust:" << num_adjust;
-            return true;
+            qCDebug(LOG_QTAPK) << "To install:" << num_install
+                               << "To remove:" << num_remove
+                               << "To adjust:" << num_adjust;
+
+            // if we are not simulating upgrade, actually install packages
+            if (!only_simulate) {
+                qCDebug(LOG_QTAPK) << "Installing...";
+                r = apk_solver_commit_changeset(db, &changeset, db->world);
+                if (r != 0) {
+                    ret = false;
+                    qCWarning(LOG_QTAPK) << "Upgrade failed:"
+                                         << qtapk_error_str(r);
+                }
+            }
+        } else {
+            // solver could not solve a world upgrade.
+            // there is an apk_solver_print_errors() function
+            // for that case, but we will not use it here.
+            qCWarning(LOG_QTAPK) << "Failed to resolve world:"
+                                 << qtapk_error_str(r);
+            num_install = num_remove = num_adjust = 0;
         }
 
-        // solver could not solve a world upgrade.
-        // there is an apk_solver_print_errors() function
-        // for that case, but we will not use it here.
-        qCWarning(LOG_QTAPK) << "Solver failed!";
-        num_install = num_remove = num_adjust = 0;
-        return false;
+        apk_change_array_free(&changeset.changes);
+        return ret;
     }
 
 private:
-    int dbopen(unsigned long open_flags) {
+    int dbopen(unsigned long open_flags)
+    {
         memset(&db_opts, 0, sizeof(db_opts));
         db_opts.open_flags = open_flags;
         // apply "fake" root, if set
@@ -126,13 +149,15 @@ private:
         }
         list_init(&db_opts.repository_list);
         apk_atom_init();
-        db = static_cast<struct apk_database *>(malloc(sizeof(struct apk_database)));
+        db = static_cast<struct apk_database *>(
+                    malloc(sizeof(struct apk_database)));
         memset(db, 0, sizeof(struct apk_database));
         apk_db_init(db);
         return apk_db_open(db, &db_opts);
     }
 
-    void dbclose() {
+    void dbclose()
+    {
         if (db) {
             if (db->open_complete) {
                 apk_db_close(db);
@@ -142,19 +167,23 @@ private:
         db = nullptr;
     }
 
-    bool repository_update(struct apk_repository *repo, bool allow_untrusted) {
+    bool repository_update(struct apk_repository *repo, bool allow_untrusted)
+    {
         int r = 0;
         int verify_flag = allow_untrusted ? APK_SIGN_NONE : APK_SIGN_VERIFY;
         constexpr int autoupdate = 1;
 
-        qCDebug(LOG_QTAPK) << "Updating: [" << repo->url << "]" << repo->description.ptr;
+        qCDebug(LOG_QTAPK) << "Updating: [" << repo->url << "]"
+                           << repo->description.ptr;
 
-        r = apk_cache_download(db, repo, nullptr, verify_flag, autoupdate, nullptr, nullptr);
+        r = apk_cache_download(db, repo, nullptr, verify_flag, autoupdate,
+                               nullptr, nullptr);
         if (r == -EALREADY) {
             return true;
         }
         if (r != 0) {
-            qCWarning(LOG_QTAPK) << "Fetch failed [" << repo->url << "]: " << qtapk_error_str(r);
+            qCWarning(LOG_QTAPK) << "Fetch failed [" << repo->url << "]: "
+                                 << qtapk_error_str(r);
             db->repo_update_errors++;
         } else {
             db->repo_update_counter++;
@@ -198,7 +227,8 @@ public:
     Q_DECLARE_PUBLIC(Database)
     
     //
-    QString fakeRoot; //! if set, libapk will operate inside this virtual root dir
+    QString fakeRoot; //! if set, libapk will operate inside this
+                      //! virtual root dir
 
     // libapk structs
     struct apk_db_options db_opts;
@@ -220,8 +250,12 @@ bool Database::open(DbOpenFlags flags)
     // map flags from API enum to libapk defines
     unsigned long openf = 0;
     switch (flags) {
-    case QTAPK_OPENF_READONLY: openf = DatabasePrivate::DBOPENF_READONLY; break;
-    case QTAPK_OPENF_READWRITE: openf = DatabasePrivate::DBOPENF_READWRITE; break;
+    case QTAPK_OPENF_READONLY:
+        openf = DatabasePrivate::DBOPENF_READONLY;
+        break;
+    case QTAPK_OPENF_READWRITE:
+        openf = DatabasePrivate::DBOPENF_READWRITE;
+        break;
     }
     return d->open(openf);
 }
@@ -250,7 +284,9 @@ int Database::upgradeablePackagesCount()
     Q_D(Database);
     int total_upgrades = 0, num_install = 0,
             num_remove = 0, num_adjust = 0;
-    if (d->count_upgrades(&num_install, &num_remove, &num_adjust)) {
+    constexpr bool only_simulate = true;
+    if (d->upgrade(&num_install, &num_remove, &num_adjust,
+                   only_simulate)) {
         // Don't count packages to remove
         total_upgrades = num_install + num_adjust;
     }
@@ -259,16 +295,22 @@ int Database::upgradeablePackagesCount()
 
 bool Database::upgrade()
 {
-    return false;
+    Q_D(Database);
+    int num_install = 0, num_remove = 0, num_adjust = 0;
+    constexpr bool only_simulate = false;
+    return d->upgrade(&num_install, &num_remove,
+                      &num_adjust, only_simulate);
 }
 
 bool Database::add(const QString &packageNameSpec)
 {
+    Q_UNUSED(packageNameSpec)
     return false;
 }
 
 bool Database::del(const QString &packageNameSpec)
 {
+    Q_UNUSED(packageNameSpec)
     return false;
 }
 
