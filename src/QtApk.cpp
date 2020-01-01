@@ -58,28 +58,19 @@ namespace QtApk {
 class DatabasePrivate
 {
 public:
+    static const unsigned long DBOPENF_READONLY = APK_OPENF_READ
+            | APK_OPENF_NO_AUTOUPDATE;
+    static const unsigned long DBOPENF_READWRITE = APK_OPENF_READ
+            | APK_OPENF_WRITE | APK_OPENF_CACHE_WRITE | APK_OPENF_CREATE
+            | APK_OPENF_NO_AUTOUPDATE;
+    
     DatabasePrivate(Database *q)
         : q_ptr(q)
     {
-        //
     }
-
-    bool open() {
-        int r = dbopen(APK_OPENF_READ | APK_OPENF_WRITE | APK_OPENF_CACHE_WRITE
-                       | APK_OPENF_CREATE | APK_OPENF_NO_AUTOUPDATE);
-        if (r != 0) {
-            dbclose();
-            return false;
-        }
-        return true;
-    }
-
-    bool openAndUpdate() {
-        // probably bad idea. just calls open with flags that omit
-        //  APK_OPENF_NO_AUTOUPDATE. That causes apk_db_add_repository() to
-        //  automatically update given repository when opening database.
-        int r = dbopen(APK_OPENF_READ | APK_OPENF_WRITE | APK_OPENF_CACHE_WRITE
-                       | APK_OPENF_CREATE);
+    
+    bool open(unsigned long open_flags) {
+        int r = dbopen(open_flags);
         if (r != 0) {
             dbclose();
             return false;
@@ -91,9 +82,18 @@ public:
         dbclose();
         return;
     }
+    
+    bool isOpen() const {
+        if (!db) return false;
+        return (db->open_complete != 0);
+    }
 
     bool update(bool allow_untrusted = false) {
-        // apk_repository_update() // is not public??
+        if (!isOpen()) {
+            qCWarning(LOG_QTAPK) << "update: Database is not open!";
+            return false;
+        }
+        // apk_repository_update() // is not public?? why, libapk??
         // update each repo
         bool res = true;
         for (unsigned int i = APK_REPOSITORY_FIRST_CONFIGURED; i < db->num_repos; i++) {
@@ -124,7 +124,9 @@ private:
 
     void dbclose() {
         if (db) {
-            apk_db_close(db);
+            if (db->open_complete) {
+                apk_db_close(db);
+            }
             free(db);
         }
         db = nullptr;
@@ -169,10 +171,10 @@ public:
         }
 
         qCDebug(LOG_QTAPK) << "Installed packages:";
-        const struct list_head *ipkg_end = &db->installed.packages;
-        //while (ipkg) {
-        while (&ipkg->installed_pkgs_list != ipkg_end) {
-            qCDebug(LOG_QTAPK) << "    " << ipkg->pkg->name->name;
+        while (&ipkg->installed_pkgs_list != &db->installed.packages) {
+            qCDebug(LOG_QTAPK) << "    " << ipkg->pkg->name->name
+                               << "  " << ipkg->pkg->version->ptr
+                               << " / " << ipkg->pkg->arch->ptr;
 
             ipkg = list_entry(ipkg->installed_pkgs_list.next,
                               typeof(*ipkg), installed_pkgs_list);
@@ -183,6 +185,8 @@ public:
 
     Database *q_ptr = nullptr;
     Q_DECLARE_PUBLIC(Database)
+    
+    QString fakeRoot;
 
     struct apk_db_options db_opts;
     struct apk_database *db = nullptr;
@@ -191,16 +195,22 @@ public:
 ///////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////
 
-Database::Database()
+Database::Database(const QString &fakeRoot)
     : d_ptr(new DatabasePrivate(this))
 {
-    //
+    d_ptr->fakeRoot = fakeRoot;
 }
 
-bool Database::open()
+bool Database::open(DbOpenFlags flags)
 {
     Q_D(Database);
-    return d->open();
+    // map flags from API enum to libapk defines
+    unsigned long openf = 0;
+    switch (flags) {
+    case QTAPK_OPENF_READONLY: openf = DatabasePrivate::DBOPENF_READONLY; break;
+    case QTAPK_OPENF_READWRITE: openf = DatabasePrivate::DBOPENF_READWRITE; break;
+    }
+    return d->open(openf);
 }
 
 void Database::close()
@@ -209,10 +219,23 @@ void Database::close()
     d->close();
 }
 
-bool Database::update(bool allow_untrusted)
+bool Database::isOpen() const
+{
+    Q_D(const Database);
+    return d->isOpen();
+}
+
+
+bool Database::updatePackageIndex(bool allow_untrusted)
 {
     Q_D(Database);
     return d->update(allow_untrusted);
+}
+
+int Database::upgradeablePackagesCount()
+{
+    Q_D(Database);
+    return 0;
 }
 
 #ifdef QTAPK_DEVELOPER_BUILD
