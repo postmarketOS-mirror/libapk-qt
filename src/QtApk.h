@@ -10,17 +10,19 @@ class DatabasePrivate;
 /**
  * @class Database
  * @brief Main interface to interact with Alpine Package Keeper.
- * Instantiate this class first, call open() to start working.
- * Call close() to finish.
+ *
+ * Instantiate this class first, call open() to start working,
+ * do some work, then call close() when finished.
  */
 class Database {
 public:
     enum DbOpenFlags {
         QTAPK_OPENF_READONLY,   //! open database only for querying info 
-        QTAPK_OPENF_READWRITE,  //! for package manipulation, often needs root rights
+        QTAPK_OPENF_READWRITE,  //! open for package manipulation, may need superuser rights
     };
     
     /**
+     * Default constructor
      * @param fakeRoot can be set to open database in some chroot.
      */
     Database(const QString& fakeRoot = QString());
