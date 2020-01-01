@@ -7,6 +7,7 @@ extern "C" {
 #include "apk_database.h"
 #include "apk_defines.h"
 #include "apk_version.h"
+#include "apk_solver.h"
 }
 
 #ifdef QT_DEBUG
@@ -75,6 +76,44 @@ public:
         qCDebug(LOG_QTAPK) << db->available.packages.num_items
                            << " distinct packages available";
         return res;
+    }
+
+    bool count_upgrades(int &num_install, int &num_remove, int &num_adjust) {
+        if (!isOpen()) {
+            qCWarning(LOG_QTAPK) << "count_upgrades: Database is not open!";
+            return false;
+        }
+
+        struct apk_changeset changeset = {};
+        int r;
+
+        if (apk_db_check_world(db, db->world) != 0) {
+            qCWarning(LOG_QTAPK) << "Missing repository tags. Use "
+                                    "--force-broken-world to override.";
+            return false;
+        }
+
+        // Do a "fake" upgrade run, just calculate what will be done
+        unsigned short solver_flags = APK_SOLVERF_UPGRADE;
+        r = apk_solver_solve(db, solver_flags, db->world, &changeset);
+        if (r == 0) {
+            // r = apk_solver_commit_changeset(db, &changeset, db->world);
+            // ^^ This probably actually applies upgrade, don't do that
+            num_install = changeset.num_install;
+            num_remove = changeset.num_remove;
+            num_adjust = changeset.num_adjust;
+            qCDebug(LOG_QTAPK) << "To install:" << num_install;
+            qCDebug(LOG_QTAPK) << "To remove:" << num_remove;
+            qCDebug(LOG_QTAPK) << "To adjust:" << num_adjust;
+            return true;
+        }
+
+        // solver could not solve a world upgrade.
+        // there is an apk_solver_print_errors() function
+        // for that case, but we will not use it here.
+        qCWarning(LOG_QTAPK) << "Solver failed!";
+        num_install = num_remove = num_adjust = 0;
+        return false;
     }
 
 private:
@@ -209,7 +248,13 @@ bool Database::updatePackageIndex(bool allow_untrusted)
 int Database::upgradeablePackagesCount()
 {
     Q_D(Database);
-    return 0;
+    int total_upgrades = 0, num_install = 0,
+            num_remove = 0, num_adjust = 0;
+    if (d->count_upgrades(num_install, num_remove, num_adjust)) {
+        // Don't count packages to remove
+        total_upgrades = num_install + num_adjust;
+    }
+    return total_upgrades;
 }
 
 #ifdef QTAPK_DEVELOPER_BUILD
