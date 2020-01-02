@@ -7,10 +7,7 @@ if [ x$ROOT == "x" ]; then
     exit 1
 fi
 
-if [ ! -d $ROOT ]; then
-    echo "[$ROOT] is not a directory!"
-    exit 1
-fi
+mkdir -p $ROOT || exit 1
 
 mkdir -p $ROOT/etc/apk/keys
 mkdir -p $ROOT/lib/apk/db
