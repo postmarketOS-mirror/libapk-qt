@@ -43,6 +43,11 @@ add_test(NAME test_openclose
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 )
 
+add_test(NAME test_db_update
+    COMMAND test_db_update --root ${FAKEROOT_DIR}
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+)
+
 add_test(NAME clean_fakeroot
     COMMAND rm -rf ${FAKEROOT_DIR}
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
