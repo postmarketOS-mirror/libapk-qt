@@ -24,3 +24,26 @@ if (BUILD_DEVELOPER_MODE)
         QTAPK_DEVELOPER_BUILD
     )
 endif()
+
+###################################
+# Tests are executed in order, so:
+# 1) ceate fakeroot
+# 2) run run tests
+# 3) remove fakeroot
+
+set(FAKEROOT_DIR ${CMAKE_CURRENT_BINARY_DIR}/fakeroot)
+
+add_test(NAME prepare_fakeroot
+    COMMAND ${CMAKE_CURRENT_LIST_DIR}/testdata/create_fakeroot.sh ${FAKEROOT_DIR}
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+)
+
+add_test(NAME test_openclose
+    COMMAND test_openclose --root ${FAKEROOT_DIR}
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+)
+
+add_test(NAME clean_fakeroot
+    COMMAND rm -rf ${FAKEROOT_DIR}
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+)
