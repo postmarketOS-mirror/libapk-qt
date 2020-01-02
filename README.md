@@ -40,5 +40,5 @@ Requirements are only:
 Other useful cmake build options:
 
  * BUILD_SHARED_LIBS (default ON) shared libs, that's obviously what we want
- * BUILD_TESTING (default OFF) developer's tests. Those are manual tests, not automatic
+ * BUILD_TESTING (default OFF) build tests and enable `make test` target.
  * BUILD_DEVELOPER_MODE (default OFF) developer-only extra debug information. Don't enable in production
