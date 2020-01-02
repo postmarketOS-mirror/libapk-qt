@@ -2,7 +2,6 @@
 #include <QCommandLineOption>
 #include <QCommandLineParser>
 #include <QDebug>
-#include <QList>
 
 #include <QtApk.h>
 
