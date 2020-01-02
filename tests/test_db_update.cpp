@@ -16,6 +16,7 @@ int main()
 
     if (!db.updatePackageIndex(true)) {
         qWarning() << "WARNING: Failed to update DB!";
+        ret = 1;
     } else {
         qDebug() << "OK: DB was updated!";
         qDebug() << db.upgradeablePackagesCount() << " packages can be updated.";
