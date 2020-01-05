@@ -25,6 +25,15 @@ if (BUILD_DEVELOPER_MODE)
     )
 endif()
 
+add_executable(test_add test_add.cpp)
+target_link_libraries(test_add apk-qt Qt5::Core)
+target_include_directories(test_add PRIVATE ../src)
+if (BUILD_DEVELOPER_MODE)
+    target_compile_definitions(test_add PRIVATE
+        QTAPK_DEVELOPER_BUILD
+    )
+endif()
+
 ###################################
 # Tests are executed in order, so:
 # 1) ceate fakeroot
@@ -33,6 +42,7 @@ endif()
 
 set(FAKEROOT_DIR ${CMAKE_CURRENT_BINARY_DIR}/fakeroot)
 
+# Run this "test" first so it prepares the test environment
 add_test(NAME prepare_fakeroot
     COMMAND ${CMAKE_CURRENT_LIST_DIR}/testdata/create_fakeroot.sh ${FAKEROOT_DIR}
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
@@ -48,6 +58,12 @@ add_test(NAME test_db_update
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 )
 
+add_test(NAME test_add
+    COMMAND test_add --root ${FAKEROOT_DIR}
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+)
+
+# Run this test last, so it can clean up the test environment
 add_test(NAME clean_fakeroot
     COMMAND rm -rf ${FAKEROOT_DIR}
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
