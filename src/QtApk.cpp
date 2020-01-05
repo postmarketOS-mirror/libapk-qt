@@ -8,6 +8,7 @@ extern "C" {
 #include "apk_defines.h"
 #include "apk_version.h"
 #include "apk_solver.h"
+#include "apk_package.h"
 }
 
 #ifdef QT_DEBUG
@@ -111,9 +112,9 @@ public:
             *num_install = changeset.num_install;
             *num_remove = changeset.num_remove;
             *num_adjust = changeset.num_adjust;
-            qCDebug(LOG_QTAPK) << "To install:" << num_install
-                               << "To remove:" << num_remove
-                               << "To adjust:" << num_adjust;
+            qCDebug(LOG_QTAPK) << "To install:" << (*num_install)
+                               << "; To remove:" << (*num_remove)
+                               << "; To adjust:" << (*num_adjust);
 
             // if we are not simulating upgrade, actually install packages
             if (!only_simulate) {
@@ -282,7 +283,7 @@ private:
                 return false;
             }
         }
-        return 0;
+        return true;
     }
 
 #ifdef QTAPK_DEVELOPER_BUILD
