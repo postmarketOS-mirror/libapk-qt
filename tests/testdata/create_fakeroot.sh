@@ -25,5 +25,5 @@ cp -a $SCRIPT_DIR/files/lock          $ROOT/lib/apk/db
 cp -a $SCRIPT_DIR/files/scripts.tar   $ROOT/lib/apk/db
 cp -a $SCRIPT_DIR/files/triggers      $ROOT/lib/apk/db
 
-# APKINDEX cache should match repositories file
+# APKINDEX cache files should match /etc/apk/repositories file
 cp -aR $SCRIPT_DIR/files/APKINDEX.*.tar.gz  $ROOT/var/cache/apk
