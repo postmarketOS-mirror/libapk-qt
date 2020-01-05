@@ -93,7 +93,8 @@ public:
      * @brief add
      * Add a package to world (install).
      * Database needs to be opened for writing.
-     * @param packageNameSpec package name specifier
+     * @param packageNameSpec package name specifier.
+     *            Format: "name(@tag)([<>~=]version)"
      * @return true if everything was OK
      */
     bool add(const QString &packageNameSpec);
@@ -102,7 +103,8 @@ public:
      * @brief del
      * Delete package from world (uninstall).
      * Database needs to be opened for writing.
-     * @param packageNameSpec package name specifier
+     * @param packageNameSpec package name specifier.
+     *            Format: "name(@tag)([<>~=]version)"
      * @return true if everything was OK
      */
     bool del(const QString &packageNameSpec);
