@@ -138,6 +138,44 @@ public:
         return ret;
     }
 
+    /**
+     * @brief add
+     * @param pkgNameSpec  - package name spec, in format: "name(@tag)([<>~=]version)"
+     * @param solver_flags - solver flags, like APK_SOLVERF_UPGRADE | APK_SOLVERF_LATEST,
+     *                       optional, default 0
+     * @return true on OK
+     */
+    bool add(const QString &pkgNameSpec, unsigned short solver_flags = 0)
+    {
+        const char *const pkgname = pkgNameSpec.toUtf8().constData();
+        struct apk_dependency dep;
+        if (!package_name_to_apk_dependency(pkgname, &dep)) {
+            return false;
+        }
+
+        int r;
+        struct apk_dependency_array *world_copy = NULL;
+        apk_dependency_array_copy(&world_copy, db->world);
+        apk_deps_add(&world_copy, &dep);
+        apk_solver_set_name_flags(dep.name, solver_flags, solver_flags);
+        r = apk_solver_commit(db, 0, world_copy);
+        // ^^ this may be split into:
+        //    - apk_solver_solve
+        //    - apk_solver_commit_changeset
+        // (see above upgrade() function),
+        // if more detailed information is required about
+        //    what is happening behind the scenes
+        apk_dependency_array_free(&world_copy);
+
+        if (r != 0) {
+            qCWarning(LOG_QTAPK) << "add: Failed to install package: "
+                                 << dep.name->name << "-" << dep.version->ptr
+                                 << ": " << qtapk_error_str(r);
+        }
+
+        return (r == 0);
+    }
+
 private:
     int dbopen(unsigned long open_flags)
     {
@@ -189,6 +227,62 @@ private:
             db->repo_update_counter++;
         }
         return true;
+    }
+
+    bool internal_non_repository_check()
+    {
+        // copied from libapk's add.c
+        if (apk_force & APK_FORCE_NON_REPOSITORY)
+            return true;
+        if (apk_db_cache_active(db))
+            return true;
+        if (apk_db_permanent(db))
+            return true;
+
+        qCWarning(LOG_QTAPK) <<
+              "You tried to add a non-repository package to system, \n"
+              "but it would be lost on next reboot. Enable package caching \n"
+              "(apk cache --help) or use --force-non-repository \n"
+              "if you know what you are doing.";
+        return false;
+    }
+
+    bool package_name_to_apk_dependency(
+            const char *pkgname,
+            struct apk_dependency *pdep)
+    {
+        // copied from libapk's add.c, but virtual packages support was removed
+        int r;
+        if (strstr(pkgname, ".apk") != NULL) {
+            struct apk_package *pkg = NULL;
+            struct apk_sign_ctx sctx;
+
+            if (!internal_non_repository_check()) {
+                return false;
+            }
+
+            apk_sign_ctx_init(&sctx, APK_SIGN_VERIFY_AND_GENERATE,
+                      NULL, db->keys_fd);
+            r = apk_pkg_read(db, pkgname, &sctx, &pkg);
+            apk_sign_ctx_free(&sctx);
+            if (r != 0) {
+                qCWarning(LOG_QTAPK) << pkgname << ": "
+                                     << qtapk_error_str(r);
+                return false;
+            }
+            apk_dep_from_pkg(pdep, db, pkg);
+        } else {
+            apk_blob_t b = APK_BLOB_STR(pkgname);
+
+            apk_blob_pull_dep(&b, db, pdep);
+            if (APK_BLOB_IS_NULL(b) || b.len > 0) {
+                qCWarning(LOG_QTAPK) << pkgname
+                        << " is not a valid world dependency, format is "
+                           "name(@tag)([<>~=]version)";
+                return false;
+            }
+        }
+        return 0;
     }
 
 #ifdef QTAPK_DEVELOPER_BUILD
@@ -316,8 +410,8 @@ bool Database::upgrade()
 
 bool Database::add(const QString &packageNameSpec)
 {
-    Q_UNUSED(packageNameSpec)
-    return false;
+    Q_D(Database);
+    return d->add(packageNameSpec);
 }
 
 bool Database::del(const QString &packageNameSpec)
