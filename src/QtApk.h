@@ -103,11 +103,13 @@ public:
      * @brief del
      * Delete package from world (uninstall).
      * Database needs to be opened for writing.
-     * @param packageNameSpec package name specifier.
+     * @param packageNameSpec - package name specifier.
      *            Format: "name(@tag)([<>~=]version)"
+     * @param delete_rdepends - delete package and
+     *                   everything that depends on it
      * @return true if everything was OK
      */
-    bool del(const QString &packageNameSpec);
+    bool del(const QString &packageNameSpec, bool delete_rdepends = false);
 
 #ifdef QTAPK_DEVELOPER_BUILD
     // extra debugging functions here, not part of

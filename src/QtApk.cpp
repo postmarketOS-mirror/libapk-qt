@@ -33,6 +33,16 @@ public:
     static const unsigned long DBOPENF_READWRITE = APK_OPENF_READ
             | APK_OPENF_WRITE | APK_OPENF_CACHE_WRITE | APK_OPENF_CREATE
             | APK_OPENF_NO_AUTOUPDATE;
+
+    /**
+     * Internal struct passed as void* context in delete
+     * package callbacks
+     **/
+    struct del_ctx {
+        int recursive_delete;   //! delete rdepends?
+        struct apk_dependency_array *world; //! world copy
+        int errors;             //! errors counter
+    };
     
     DatabasePrivate(Database *q)
         : q_ptr(q)
@@ -90,7 +100,7 @@ public:
                  bool only_simulate)
     {
         if (!isOpen()) {
-            qCWarning(LOG_QTAPK) << "count_upgrades: Database is not open!";
+            qCWarning(LOG_QTAPK) << "upgrade: Database is not open!";
             return false;
         }
 
@@ -99,7 +109,7 @@ public:
         bool ret = false;
 
         if (apk_db_check_world(db, db->world) != 0) {
-            qCWarning(LOG_QTAPK) << "Missing repository tags. Use "
+            qCWarning(LOG_QTAPK) << "upgrade: Missing repository tags. Use "
                                     "--force-broken-world to override.";
             return false;
         }
@@ -122,7 +132,7 @@ public:
                 r = apk_solver_commit_changeset(db, &changeset, db->world);
                 if (r != 0) {
                     ret = false;
-                    qCWarning(LOG_QTAPK) << "Upgrade failed:"
+                    qCWarning(LOG_QTAPK) << "upgrade failed:"
                                          << qtapk_error_str(r);
                 }
             }
@@ -130,7 +140,7 @@ public:
             // solver could not solve a world upgrade.
             // there is an apk_solver_print_errors() function
             // for that case, but we will not use it here.
-            qCWarning(LOG_QTAPK) << "Failed to resolve world:"
+            qCWarning(LOG_QTAPK) << "upgrade: Failed to resolve world:"
                                  << qtapk_error_str(r);
             num_install = num_remove = num_adjust = 0;
         }
@@ -148,6 +158,11 @@ public:
      */
     bool add(const QString &pkgNameSpec, unsigned short solver_flags = 0)
     {
+        if (!isOpen()) {
+            qCWarning(LOG_QTAPK) << "add: Database is not open!";
+            return false;
+        }
+
         const char *const pkgname = pkgNameSpec.toUtf8().constData();
         struct apk_dependency dep;
         if (!package_name_to_apk_dependency(pkgname, &dep)) {
@@ -170,10 +185,76 @@ public:
 
         if (r != 0) {
             qCWarning(LOG_QTAPK) << "add: Failed to install package: "
-                                 << dep.name->name << "-" << dep.version->ptr
+                                 << dep.name->name << "-" << apk_blob_cstr(*dep.version)
                                  << ": " << qtapk_error_str(r);
         }
 
+        return (r == 0);
+    }
+
+    /**
+     * @brief del
+     * @param pkgNameSpec
+     * @param delete_rdepends - Recursively delete all top-level
+     *                          reverse dependencies too
+     * @return true on OK
+     */
+    bool del(const QString &pkgNameSpec, bool delete_rdepends = false)
+    {
+        if (!isOpen()) {
+            qCWarning(LOG_QTAPK) << "del: Database is not open!";
+            return false;
+        }
+
+        int r = 0;
+        const char *const pkgname = pkgNameSpec.toUtf8().constData();
+        const apk_blob_t pkgname_blob = APK_BLOB_STR(pkgname);
+        struct apk_dependency_array *world_copy = NULL;
+        struct apk_changeset changeset = {};
+        // struct apk_change *change;
+        struct apk_name *name = NULL;
+        struct apk_package *pkg = NULL;
+
+        apk_dependency_array_copy(&world_copy, db->world);
+
+        // fill in deletion context
+        struct del_ctx dctx = {
+            .recursive_delete = (delete_rdepends ? 1 : 0),
+            .world = world_copy,
+            .errors = 0
+        };
+
+        // find package name as apk_name in installed packages
+        name = static_cast<struct apk_name *>(
+                    apk_hash_get(&db->available.names, pkgname_blob));
+
+        if (!name) {
+            qCWarning(LOG_QTAPK) << "del: No such package: " << pkgname;
+            dctx.errors++;
+            return false;
+        }
+
+        // This time find package (not only name!)
+        // This function find first provider of the name
+        //      that is actually installed
+        pkg = apk_pkg_get_installed(name);
+        if (pkg != NULL) {
+            // cb_delete_pkg() can call itself recursively to
+            //  delete reverse depends, if requested
+            cb_delete_pkg(pkg, NULL, NULL, &dctx);
+        } else {
+            apk_deps_del(&dctx.world, name);
+        }
+
+        // solve world
+        r = apk_solver_solve(db, 0, world_copy, &changeset);
+        if (r == 0) {
+            r = apk_solver_commit_changeset(db, &changeset, world_copy);
+        }
+
+        // cleanup
+        apk_change_array_free(&changeset.changes);
+        apk_dependency_array_free(&world_copy);
         return (r == 0);
     }
 
@@ -185,6 +266,11 @@ private:
         // apply "fake" root, if set
         if (!fakeRoot.isEmpty()) {
             db_opts.root = strdup(fakeRoot.toUtf8().constData());
+            // Do not load scripts when db is opened for writing
+            // in fake root mode. Scripts don't like it and always fail
+            if (open_flags & APK_OPENF_WRITE) {
+                db_opts.open_flags |= APK_OPENF_NO_SCRIPTS;
+            }
         }
         list_init(&db_opts.repository_list);
         apk_atom_init();
@@ -213,7 +299,7 @@ private:
         constexpr int autoupdate = 1;
 
         qCDebug(LOG_QTAPK) << "Updating: [" << repo->url << "]"
-                           << repo->description.ptr;
+                           << apk_blob_cstr(repo->description);
 
         r = apk_cache_download(db, repo, nullptr, verify_flag, autoupdate,
                                nullptr, nullptr);
@@ -286,6 +372,34 @@ private:
         return true;
     }
 
+    /**
+     * @brief cb_delete_pkg
+     * Used as callback and can call itself recursively.
+     * Performs an actual deletion.
+     * @param pkg0 - actual package to delete
+     * @param dep0 - unused
+     * @param pkg - unused
+     * @param ctx - deletion context, stores information
+     *              about current deletion procedure. Points
+     *              to @see struct del_ctx.
+     */
+    static void cb_delete_pkg(struct apk_package *pkg0,
+                           struct apk_dependency *dep0,
+                           struct apk_package *pkg,
+                           void *ctx)
+    {
+        Q_UNUSED(dep0)
+        Q_UNUSED(pkg)
+        struct del_ctx *pctx = static_cast<struct del_ctx *>(ctx);
+        apk_deps_del(&pctx->world, pkg0->name);
+        if (pctx->recursive_delete) {
+            // call self for each reverse dep
+            apk_pkg_foreach_reverse_dependency(
+                pkg0, APK_FOREACH_INSTALLED | APK_DEP_SATISFIES,
+                cb_delete_pkg, ctx);
+        }
+    }
+
 #ifdef QTAPK_DEVELOPER_BUILD
 public:
 
@@ -307,8 +421,8 @@ public:
         qCDebug(LOG_QTAPK) << "Installed packages:";
         while (&ipkg->installed_pkgs_list != &db->installed.packages) {
             qCDebug(LOG_QTAPK) << "    " << ipkg->pkg->name->name
-                               << "  " << ipkg->pkg->version->ptr
-                               << " / " << ipkg->pkg->arch->ptr;
+                               << "  " << apk_blob_cstr(*ipkg->pkg->version)
+                               << " / " << apk_blob_cstr(*ipkg->pkg->arch);
 
             ipkg = list_entry(ipkg->installed_pkgs_list.next,
                               typeof(*ipkg), installed_pkgs_list);
@@ -415,10 +529,10 @@ bool Database::add(const QString &packageNameSpec)
     return d->add(packageNameSpec);
 }
 
-bool Database::del(const QString &packageNameSpec)
+bool Database::del(const QString &packageNameSpec, bool delete_rdepends)
 {
-    Q_UNUSED(packageNameSpec)
-    return false;
+    Q_D(Database);
+    return d->del(packageNameSpec, delete_rdepends);
 }
 
 #ifdef QTAPK_DEVELOPER_BUILD
