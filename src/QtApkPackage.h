@@ -55,6 +55,7 @@ public:
     QString filename;
     quint64 installedSize = 0;
     quint64 size = 0;
+    QDateTime buildTime;
 };
 
 
