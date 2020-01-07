@@ -43,6 +43,15 @@ if (BUILD_DEVELOPER_MODE)
     )
 endif()
 
+add_executable(test_print_packages test_print_packages.cpp)
+target_link_libraries(test_print_packages apk-qt Qt5::Core)
+target_include_directories(test_print_packages PRIVATE ../src)
+if (BUILD_DEVELOPER_MODE)
+    target_compile_definitions(test_print_packages PRIVATE
+        QTAPK_DEVELOPER_BUILD
+    )
+endif()
+
 ###################################
 # Tests are executed in order, so:
 # 1) ceate fakeroot
@@ -74,6 +83,11 @@ add_test(NAME test_add
 
 add_test(NAME test_del
     COMMAND test_del --root ${FAKEROOT_DIR}
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+)
+
+add_test(NAME test_print_packages
+    COMMAND test_print_packages --root ${FAKEROOT_DIR}
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 )
 

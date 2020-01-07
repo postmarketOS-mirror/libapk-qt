@@ -8,7 +8,6 @@
 int main(int argc, char *argv[])
 {
     QCoreApplication app(argc, argv);
-    int ret = 0;
     QtApk::Database db;
     
     QCommandLineOption root_option(
@@ -30,8 +29,6 @@ int main(int argc, char *argv[])
     }
     qDebug() << "OK: DB was opened.";
 
-    db.print_installed();
-
     db.close();
-    return ret;
+    return 0;
 }
