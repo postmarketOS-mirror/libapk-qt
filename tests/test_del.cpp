@@ -32,6 +32,9 @@ int main(int argc, char *argv[])
     const QString pkgName(QStringLiteral("fish"));
     if (!db.del(pkgName, true)) {
         qWarning() << "Failed to delete package " << pkgName;
+        // this test does not return 1 on error,
+        // because it fails in minimal chroot,
+        // but it really works in a full Alpine system
     }
 
     db.close();
