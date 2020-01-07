@@ -291,7 +291,7 @@ public:
     {
         QVector<Package> ret;
         int r;
-        ret.resize(db->available.packages.num_items);
+        ret.reserve(db->available.packages.num_items);
         r = apk_hash_foreach(&db->available.packages,
                              cb_append_package_to_vector,
                              static_cast<void *>(&ret));
@@ -473,6 +473,7 @@ private:
             qpkg.commit = QString::fromUtf8(pkg->commit);
         if (pkg->filename)
             qpkg.filename = QString::fromUtf8(pkg->filename);
+        qpkg.buildTime = QDateTime::fromSecsSinceEpoch(pkg->build_time, Qt::UTC);
         qpkg.installedSize = pkg->installed_size;
         qpkg.size = pkg->size;
         return qpkg;
