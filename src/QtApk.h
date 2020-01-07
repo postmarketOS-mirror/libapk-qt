@@ -1,9 +1,12 @@
 #ifndef H_QTAPK
 #define H_QTAPK
 
-#include <QObject>
+#include <QString>
+#include <QVector>
+#include "QtApkPackage.h"
 
 namespace QtApk {
+
 
 class DatabasePrivate;
 
@@ -25,6 +28,11 @@ public:
      * @brief Database default constructor
      */
     Database();
+
+    /**
+     * @brief ~Database destructor
+     */
+    virtual ~Database();
 
 public:
     /**
@@ -110,6 +118,12 @@ public:
      * @return true if everything was OK
      */
     bool del(const QString &packageNameSpec, bool delete_rdepends = false);
+
+    /**
+     * @brief getInstalledPackages
+     * @return a QVector of QtApk::Package: all installed packages
+     */
+    QVector<Package> getInstalledPackages() const;
 
 #ifdef QTAPK_DEVELOPER_BUILD
     // extra debugging functions here, not part of

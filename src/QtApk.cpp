@@ -48,6 +48,11 @@ public:
         : q_ptr(q)
     {
     }
+
+    ~DatabasePrivate()
+    {
+        close();
+    }
     
     bool open(unsigned long open_flags)
     {
@@ -62,7 +67,6 @@ public:
     void close()
     {
         dbclose();
-        return;
     }
     
     bool isOpen() const
@@ -256,6 +260,53 @@ public:
         apk_change_array_free(&changeset.changes);
         apk_dependency_array_free(&world_copy);
         return (r == 0);
+    }
+
+    QVector<Package> get_installed() const
+    {
+        QVector<Package> ret;
+        struct apk_installed_package *ipkg;
+        ipkg = list_entry((&db->installed.packages)->next,
+                          struct apk_installed_package,
+                          installed_pkgs_list);
+        if (!ipkg) {
+            qCDebug(LOG_QTAPK) << "No installed packages!";
+            return ret;
+        }
+
+        if (ipkg->installed_pkgs_list.next == &db->installed.packages) {
+            qCDebug(LOG_QTAPK) << "No installed packages!";
+            return ret;
+        }
+
+        while (&ipkg->installed_pkgs_list != &db->installed.packages) {
+            Package qpkg(QString::fromUtf8(ipkg->pkg->name->name));
+            if (ipkg->pkg->version)
+                qpkg.version = QString::fromUtf8(apk_blob_cstr(*ipkg->pkg->version));
+            if (ipkg->pkg->arch)
+                qpkg.arch = QString::fromUtf8(apk_blob_cstr(*ipkg->pkg->arch));
+            if (ipkg->pkg->license)
+                qpkg.license = QString::fromUtf8(apk_blob_cstr(*ipkg->pkg->license));
+            if (ipkg->pkg->origin)
+                qpkg.origin = QString::fromUtf8(apk_blob_cstr(*ipkg->pkg->origin));
+            if (ipkg->pkg->maintainer)
+                qpkg.maintainer = QString::fromUtf8(apk_blob_cstr(*ipkg->pkg->maintainer));
+            if (ipkg->pkg->url)
+                qpkg.url = QString::fromUtf8(ipkg->pkg->url);
+            if (ipkg->pkg->description)
+                qpkg.description = QString::fromUtf8(ipkg->pkg->description);
+            if (ipkg->pkg->commit)
+                qpkg.commit = QString::fromUtf8(ipkg->pkg->commit);
+            if (ipkg->pkg->filename)
+                qpkg.filename = QString::fromUtf8(ipkg->pkg->filename);
+            qpkg.installedSize = ipkg->pkg->installed_size;
+            qpkg.size = ipkg->pkg->size;
+            ret.append(std::move(qpkg));
+
+            ipkg = list_entry(ipkg->installed_pkgs_list.next,
+                              typeof(*ipkg), installed_pkgs_list);
+        }
+        return ret;
     }
 
 private:
@@ -452,6 +503,12 @@ Database::Database()
 {
 }
 
+Database::~Database()
+{
+    delete d_ptr;
+    d_ptr = nullptr;
+}
+
 void Database::setUseFakeRoot(const QString &fakeRootDir)
 {
     Q_D(Database);
@@ -533,6 +590,12 @@ bool Database::del(const QString &packageNameSpec, bool delete_rdepends)
 {
     Q_D(Database);
     return d->del(packageNameSpec, delete_rdepends);
+}
+
+QVector<Package> Database::getInstalledPackages() const
+{
+    Q_D(const Database);
+    return d->get_installed();
 }
 
 #ifdef QTAPK_DEVELOPER_BUILD
