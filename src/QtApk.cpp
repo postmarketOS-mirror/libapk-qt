@@ -262,7 +262,7 @@ public:
         return (r == 0);
     }
 
-    QVector<Package> get_installed() const
+    QVector<Package> get_installed_packages() const
     {
         QVector<Package> ret;
         struct apk_installed_package *ipkg;
@@ -280,31 +280,23 @@ public:
         }
 
         while (&ipkg->installed_pkgs_list != &db->installed.packages) {
-            Package qpkg(QString::fromUtf8(ipkg->pkg->name->name));
-            if (ipkg->pkg->version)
-                qpkg.version = QString::fromUtf8(apk_blob_cstr(*ipkg->pkg->version));
-            if (ipkg->pkg->arch)
-                qpkg.arch = QString::fromUtf8(apk_blob_cstr(*ipkg->pkg->arch));
-            if (ipkg->pkg->license)
-                qpkg.license = QString::fromUtf8(apk_blob_cstr(*ipkg->pkg->license));
-            if (ipkg->pkg->origin)
-                qpkg.origin = QString::fromUtf8(apk_blob_cstr(*ipkg->pkg->origin));
-            if (ipkg->pkg->maintainer)
-                qpkg.maintainer = QString::fromUtf8(apk_blob_cstr(*ipkg->pkg->maintainer));
-            if (ipkg->pkg->url)
-                qpkg.url = QString::fromUtf8(ipkg->pkg->url);
-            if (ipkg->pkg->description)
-                qpkg.description = QString::fromUtf8(ipkg->pkg->description);
-            if (ipkg->pkg->commit)
-                qpkg.commit = QString::fromUtf8(ipkg->pkg->commit);
-            if (ipkg->pkg->filename)
-                qpkg.filename = QString::fromUtf8(ipkg->pkg->filename);
-            qpkg.installedSize = ipkg->pkg->installed_size;
-            qpkg.size = ipkg->pkg->size;
-            ret.append(std::move(qpkg));
-
+            ret.append(apk_package_to_QtApkPackage(ipkg->pkg));
             ipkg = list_entry(ipkg->installed_pkgs_list.next,
                               typeof(*ipkg), installed_pkgs_list);
+        }
+        return ret;
+    }
+
+    QVector<Package> get_available_packages() const
+    {
+        QVector<Package> ret;
+        int r;
+        ret.resize(db->available.packages.num_items);
+        r = apk_hash_foreach(&db->available.packages,
+                             cb_append_package_to_vector,
+                             static_cast<void *>(&ret));
+        if (r < 0) {
+            qCWarning(LOG_QTAPK) << "Failed to enumerate available packages!";
         }
         return ret;
     }
@@ -451,6 +443,41 @@ private:
         }
     }
 
+    static int cb_append_package_to_vector(apk_hash_item item, void *ctx)
+    {
+        QVector<Package> *vec = static_cast<QVector<Package> *>(ctx);
+        struct apk_package *pkg = (struct apk_package *) item;
+        vec->append(apk_package_to_QtApkPackage(pkg));
+        return 0;
+    }
+
+    static Package apk_package_to_QtApkPackage(struct apk_package *pkg)
+    {
+        Package qpkg;
+        qpkg.name = QString::fromUtf8(pkg->name->name);
+        if (pkg->version)
+            qpkg.version = QString::fromUtf8(apk_blob_cstr(*pkg->version));
+        if (pkg->arch)
+            qpkg.arch = QString::fromUtf8(apk_blob_cstr(*pkg->arch));
+        if (pkg->license)
+            qpkg.license = QString::fromUtf8(apk_blob_cstr(*pkg->license));
+        if (pkg->origin)
+            qpkg.origin = QString::fromUtf8(apk_blob_cstr(*pkg->origin));
+        if (pkg->maintainer)
+            qpkg.maintainer = QString::fromUtf8(apk_blob_cstr(*pkg->maintainer));
+        if (pkg->url)
+            qpkg.url = QString::fromUtf8(pkg->url);
+        if (pkg->description)
+            qpkg.description = QString::fromUtf8(pkg->description);
+        if (pkg->commit)
+            qpkg.commit = QString::fromUtf8(pkg->commit);
+        if (pkg->filename)
+            qpkg.filename = QString::fromUtf8(pkg->filename);
+        qpkg.installedSize = pkg->installed_size;
+        qpkg.size = pkg->size;
+        return qpkg;
+    }
+
 #ifdef QTAPK_DEVELOPER_BUILD
 public:
 
@@ -595,7 +622,13 @@ bool Database::del(const QString &packageNameSpec, bool delete_rdepends)
 QVector<Package> Database::getInstalledPackages() const
 {
     Q_D(const Database);
-    return d->get_installed();
+    return d->get_installed_packages();
+}
+
+QVector<Package> Database::getAvailablePackages() const
+{
+    Q_D(const Database);
+    return d->get_available_packages();
 }
 
 #ifdef QTAPK_DEVELOPER_BUILD

@@ -125,6 +125,12 @@ public:
      */
     QVector<Package> getInstalledPackages() const;
 
+    /**
+     * @brief getInstalledPackages
+     * @return a QVector of QtApk::Package: all available packages
+     */
+    QVector<Package> getAvailablePackages() const;
+
 #ifdef QTAPK_DEVELOPER_BUILD
     // extra debugging functions here, not part of
     //    public library interface
