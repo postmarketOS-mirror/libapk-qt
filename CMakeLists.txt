@@ -159,15 +159,17 @@ target_compile_definitions(apk PRIVATE
     APK_VERSION=\"${PROJECT_VERSION}\"
 )
 
-target_include_directories(apk PUBLIC
+target_include_directories(apk PRIVATE
     ${APKTOOLS_DIR}/libfetch
 )
 
-target_link_libraries(apk PRIVATE
-    fetch
-    ZLIB::ZLIB
-    OpenSSL::SSL
-    OpenSSL::Crypto
+target_link_libraries(apk
+    PRIVATE
+        fetch
+    PUBLIC
+        ZLIB::ZLIB
+        OpenSSL::SSL
+        OpenSSL::Crypto
 )
 
 
@@ -191,11 +193,11 @@ if (BUILD_DEVELOPER_MODE)
     message(STATUS "You have enabled DEVELOPER_BUILD! Don't use it in production, it is for development only!")
 endif()
 
-target_include_directories(apk-qt PUBLIC
+target_include_directories(apk-qt PRIVATE
     ${APKTOOLS_DIR}/src
 )
 
-target_link_libraries(apk-qt PRIVATE
+target_link_libraries(apk-qt PUBLIC
     apk
     Qt5::Core
 )
@@ -210,11 +212,56 @@ if (BUILD_SHARED_LIBS)
     )
 endif()
 
-install(TARGETS apk
+# Instal libraries
+install(
+    TARGETS
+        apk
+        apk-qt
+    EXPORT  ApkQtTargets
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
+
+# Install development headers
+install(
+    FILES
+        src/QtApk.h
+        src/QtApkPackage.h
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/ApkQt
+)
+
+# Install cmake package configuration files
+set(APKQT_CMAKE_CONFIG_INSTALL_DIR "${CMAKE_INSTALL_LIBDIR}/cmake/ApkQt")
+
+install(
+    EXPORT ApkQtTargets
+    DESTINATION ${APKQT_CMAKE_CONFIG_INSTALL_DIR}
+    FILE ApkQtTargets.cmake
+)
+
+include(CMakePackageConfigHelpers)
+
+configure_package_config_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/ApkQtConfig.cmake.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/ApkQtConfig.cmake"
+    INSTALL_DESTINATION ${APKQT_CMAKE_CONFIG_INSTALL_DIR}
+    PATH_VARS CMAKE_INSTALL_INCLUDEDIR
+)
+
+write_basic_package_version_file(
+    ${CMAKE_CURRENT_BINARY_DIR}/ApkQtConfigVersion.cmake
+    VERSION ${PROJECT_VERSION}
+    COMPATIBILITY AnyNewerVersion
+)
+
+install(
+    FILES
+    "${CMAKE_CURRENT_BINARY_DIR}/ApkQtConfig.cmake"
+    "${CMAKE_CURRENT_BINARY_DIR}/ApkQtConfigVersion.cmake"
+    DESTINATION ${APKQT_CMAKE_CONFIG_INSTALL_DIR}
+)
+
 
 if (BUILD_TESTING)
     enable_testing()

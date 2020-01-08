@@ -1,0 +1,29 @@
+@PACKAGE_INIT@
+
+# - CMake package config file for the ApkQt package
+# It defines the following variables:
+#  APKQT_INCLUDE_DIRS - include directories for libapk-qt
+#  APKQT_LIBRARIES    - libraries to link against
+
+set(APKQT_INCLUDE_DIRS "@PACKAGE_CMAKE_INSTALL_INCLUDEDIR@/ApkQt")
+
+# Compute paths
+get_filename_component(APKQT_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
+
+# Our library dependencies (contains definitions for IMPORTED targets)
+if(NOT TARGET ApkQt)
+  include("${APKQT_CMAKE_DIR}/ApkQtTargets.cmake")
+endif()
+
+# These are IMPORTED targets created by ApkQtTargets.cmake
+set(APKQT_LIBRARIES apk-qt)
+
+set_target_properties(apk-qt
+    PROPERTIES
+    INTERFACE_INCLUDE_DIRECTORIES ${APKQT_INCLUDE_DIRS}
+    INTERFACE_LINK_LIBRARIES apk
+)
+
+include(CMakeFindDependencyMacro)
+find_dependency(OpenSSL)
+find_dependency(ZLIB)
