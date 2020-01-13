@@ -553,6 +553,14 @@ QString Database::fakeRoot() const
 bool Database::open(DbOpenFlags flags)
 {
     Q_D(Database);
+
+    // allow to override fakeroot from environment variable
+    if (qEnvironmentVariableIsSet("QTAPK_FAKEROOT")) {
+        qCDebug(LOG_QTAPK) << "Overriding fakeroot from env QTAPK_FAKEROOT:"
+                           << qgetenv("QTAPK_FAKEROOT");
+        setUseFakeRoot(qEnvironmentVariable("QTAPK_FAKEROOT"));
+    }
+
     // map flags from DbOpenFlags enum to libapk defines
     unsigned long openf = 0;
     switch (flags) {
