@@ -42,3 +42,7 @@ Other useful cmake build options:
  * BUILD_SHARED_LIBS (default ON) shared libs, that's obviously what we want
  * BUILD_TESTING (default OFF) build tests and enable `make test` target.
  * BUILD_DEVELOPER_MODE (default OFF) developer-only extra debug information. Don't enable in production
+
+## Overriding fake root usage from environment variable
+
+`QTAPK_FAKEROOT` can be set in environment to the path of fake chroot directory to force usage of fake root by library.
