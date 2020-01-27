@@ -16,7 +16,7 @@ option(BUILD_DEVELOPER_MODE "Developer build (extra debug output, larger binarie
 # some really really useful settings from KDE's extra-cmake-modules
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_C_STANDARD 90)
+set(CMAKE_C_STANDARD 99)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 find_package(OpenSSL REQUIRED)
@@ -87,39 +87,45 @@ add_custom_target(
     COMMAND git apply ../apk-tools-patches/cpp-compat.patch || true
 )
 
-set(APKTOOLS_SOURCES
+# this source files list can be used to build apk executable itself
+# it is currently not used in this CMakeLists.txt, but left here for
+# future reference
+set(APKTOOLS_APKEXE_SOURCES
     ${APKTOOLS_DIR}/src/add.c
     ${APKTOOLS_DIR}/src/apk.c
-    ${APKTOOLS_DIR}/src/archive.c
     ${APKTOOLS_DIR}/src/audit.c
-    ${APKTOOLS_DIR}/src/blob.c
     ${APKTOOLS_DIR}/src/cache.c
-    ${APKTOOLS_DIR}/src/commit.c
-    ${APKTOOLS_DIR}/src/common.c
-    ${APKTOOLS_DIR}/src/database.c
     ${APKTOOLS_DIR}/src/del.c
     ${APKTOOLS_DIR}/src/dot.c
     ${APKTOOLS_DIR}/src/fetch.c
     ${APKTOOLS_DIR}/src/fix.c
-    ${APKTOOLS_DIR}/src/gunzip.c
-    ${APKTOOLS_DIR}/src/hash.c
     ${APKTOOLS_DIR}/src/index.c
     ${APKTOOLS_DIR}/src/info.c
-    ${APKTOOLS_DIR}/src/io.c
     ${APKTOOLS_DIR}/src/list.c
     ${APKTOOLS_DIR}/src/manifest.c
-    ${APKTOOLS_DIR}/src/package.c
     ${APKTOOLS_DIR}/src/policy.c
-    ${APKTOOLS_DIR}/src/print.c
     ${APKTOOLS_DIR}/src/search.c
-    ${APKTOOLS_DIR}/src/solver.c
     ${APKTOOLS_DIR}/src/stats.c
-    ${APKTOOLS_DIR}/src/template.c
     ${APKTOOLS_DIR}/src/update.c
     ${APKTOOLS_DIR}/src/upgrade.c
-    ${APKTOOLS_DIR}/src/url.c
     ${APKTOOLS_DIR}/src/ver.c
     ${APKTOOLS_DIR}/src/verify.c
+)
+
+# we only statically build libapk, so we use only library sources
+set(APKTOOLS_LIB_SOURCES
+    ${APKTOOLS_DIR}/src/archive.c
+    ${APKTOOLS_DIR}/src/blob.c
+    ${APKTOOLS_DIR}/src/commit.c
+    ${APKTOOLS_DIR}/src/common.c
+    ${APKTOOLS_DIR}/src/database.c
+    ${APKTOOLS_DIR}/src/gunzip.c
+    ${APKTOOLS_DIR}/src/hash.c
+    ${APKTOOLS_DIR}/src/io.c
+    ${APKTOOLS_DIR}/src/package.c
+    ${APKTOOLS_DIR}/src/print.c
+    ${APKTOOLS_DIR}/src/solver.c
+    ${APKTOOLS_DIR}/src/url.c
     ${APKTOOLS_DIR}/src/version.c
 )
 
@@ -149,8 +155,8 @@ set_source_files_properties(
     COMPILE_DEFINITIONS restrict=__restrict
 )
 
-add_library(apk
-    ${APKTOOLS_SOURCES}
+add_library(apk STATIC
+    ${APKTOOLS_LIB_SOURCES}
     ${APKTOOLS_HEADERS}
 )
 
@@ -181,6 +187,7 @@ set(QTAPK_SOURCES
     src/QtApkPackage.h
     src/QtApkPackage.cpp
     src/errorstr.cpp
+    src/apk_time_workaround.cpp
 )
 
 
@@ -199,9 +206,11 @@ target_include_directories(apk-qt PRIVATE
     ${APKTOOLS_DIR}/src
 )
 
-target_link_libraries(apk-qt PUBLIC
-    apk
-    Qt5::Core
+target_link_libraries(apk-qt
+    PUBLIC
+        Qt5::Core
+    PRIVATE
+        apk
 )
 
 
@@ -216,9 +225,7 @@ endif()
 
 # Instal libraries
 install(
-    TARGETS
-        apk
-        apk-qt
+    TARGETS apk-qt
     EXPORT  ApkQtTargets
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
