@@ -36,19 +36,19 @@ public:
 
 public:
     /**
-     * @brief setUseFakeRoot
+     * @brief setFakeRoot
      * You can set a path for apk to operate inside. All paths
      * that libapk will access will be relative to that directory.
      * This should be called before open(), otherwise it will
      * have no effect.
      * @param fakeRoot - can be set to path to operate in chroot.
      */
-    void setUseFakeRoot(const QString& fakeRootDir);
+    void setFakeRoot(const QString& fakeRootDir);
 
     /**
      * @brief fakeRoot
      * Returns currently set fake root.
-     * @see setUseFakeRoot()
+     * @see setFakeRoot()
      * @return currently set fake root.
      */
     QString fakeRoot() const;

@@ -529,6 +529,12 @@ public:
 Database::Database()
     : d_ptr(new DatabasePrivate(this))
 {
+    // allow to override fakeroot from environment variable
+    if (qEnvironmentVariableIsSet("QTAPK_FAKEROOT")) {
+        qCDebug(LOG_QTAPK) << "Overriding fakeroot from env QTAPK_FAKEROOT:"
+                           << qgetenv("QTAPK_FAKEROOT");
+        setFakeRoot(qEnvironmentVariable("QTAPK_FAKEROOT"));
+    }
 }
 
 Database::~Database()
@@ -537,7 +543,7 @@ Database::~Database()
     d_ptr = nullptr;
 }
 
-void Database::setUseFakeRoot(const QString &fakeRootDir)
+void Database::setFakeRoot(const QString &fakeRootDir)
 {
     Q_D(Database);
     if (isOpen()) return;
@@ -553,13 +559,6 @@ QString Database::fakeRoot() const
 bool Database::open(DbOpenFlags flags)
 {
     Q_D(Database);
-
-    // allow to override fakeroot from environment variable
-    if (qEnvironmentVariableIsSet("QTAPK_FAKEROOT")) {
-        qCDebug(LOG_QTAPK) << "Overriding fakeroot from env QTAPK_FAKEROOT:"
-                           << qgetenv("QTAPK_FAKEROOT");
-        setUseFakeRoot(qEnvironmentVariable("QTAPK_FAKEROOT"));
-    }
 
     // map flags from DbOpenFlags enum to libapk defines
     unsigned long openf = 0;

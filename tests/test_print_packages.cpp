@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
     parser.process(app);
     
     if (parser.isSet(root_option)) {
-        db.setUseFakeRoot(parser.value(root_option));
+        db.setFakeRoot(parser.value(root_option));
     }
 
     if (!db.open(QtApk::Database::QTAPK_OPENF_READONLY)) {
