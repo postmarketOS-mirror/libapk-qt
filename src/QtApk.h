@@ -19,9 +19,31 @@ class DatabasePrivate;
  */
 class Database {
 public:
+    /**
+     * @brief The DbOpenFlags enum
+     * Used in open() method
+     */
     enum DbOpenFlags {
         QTAPK_OPENF_READONLY,   //! open database only for querying info 
         QTAPK_OPENF_READWRITE,  //! open for package manipulation, may need superuser rights
+    };
+
+    /**
+     * @brief The DbUpdateFlags enum
+     * Used in updatePackageIndex() method
+     */
+    enum DbUpdateFlags {
+        QTAPK_UPDATE_DEFAULT = 0,            //! no flags
+        QTAPK_UPDATE_ALLOW_UNTRUSTED = 1     //! allow untrusted repository sources
+    };
+
+    /**
+     * @brief The DbDelFlags enum
+     * Used for del() method
+     */
+    enum DbDelFlags {
+        QTAPK_DEL_DEFAULT = 0,    //! no flags
+        QTAPK_DEL_RDEPENDS = 1    //! delete package and everything that depends on it
     };
     
     /**
@@ -76,10 +98,10 @@ public:
      * @brief updatePackageIndex
      * Updates all packages repositories. Database needs to be
      * opened for writing.
-     * @param allow_untrusted Ignore signature checking
+     * @param flags update flags, @see DbUpdateFlags
      * @return true, if all was OK.
      */
-    bool updatePackageIndex(bool allow_untrusted = false);
+    bool updatePackageIndex(DbUpdateFlags flags = QTAPK_UPDATE_DEFAULT);
     
     /**
      * @brief upgradeablePackagesCount
@@ -113,11 +135,10 @@ public:
      * Database needs to be opened for writing.
      * @param packageNameSpec - package name specifier.
      *            Format: "name(@tag)([<>~=]version)"
-     * @param delete_rdepends - delete package and
-     *                   everything that depends on it
+     * @param flags - flags, @see DbDelFlags
      * @return true if everything was OK
      */
-    bool del(const QString &packageNameSpec, bool delete_rdepends = false);
+    bool del(const QString &packageNameSpec, DbDelFlags flags = QTAPK_DEL_DEFAULT);
 
     /**
      * @brief getInstalledPackages

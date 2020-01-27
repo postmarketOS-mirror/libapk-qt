@@ -75,12 +75,13 @@ public:
         return (db->open_complete != 0);
     }
 
-    bool update(bool allow_untrusted = false)
+    bool update(Database::DbUpdateFlags flags)
     {
         if (!isOpen()) {
             qCWarning(LOG_QTAPK) << "update: Database is not open!";
             return false;
         }
+
         // apk_repository_update() // is not public?? why, libapk??
         // update each repo
         bool res = true;
@@ -91,7 +92,7 @@ public:
             if (i == APK_REPOSITORY_CACHED) {
                 continue;
             }
-            res = (res && repository_update(&db->repos[i], allow_untrusted));
+            res = (res && repository_update(&db->repos[i], flags));
         }
         qCDebug(LOG_QTAPK) << "Updated: " << db->repo_update_counter
                            << "; Update errors: " << db->repo_update_errors;
@@ -203,7 +204,7 @@ public:
      *                          reverse dependencies too
      * @return true on OK
      */
-    bool del(const QString &pkgNameSpec, bool delete_rdepends = false)
+    bool del(const QString &pkgNameSpec, Database::DbDelFlags flags)
     {
         if (!isOpen()) {
             qCWarning(LOG_QTAPK) << "del: Database is not open!";
@@ -223,7 +224,7 @@ public:
 
         // fill in deletion context
         struct del_ctx dctx = {
-            .recursive_delete = (delete_rdepends ? 1 : 0),
+            .recursive_delete = (flags & Database::QTAPK_DEL_RDEPENDS) ? 1 : 0,
             .world = world_copy,
             .errors = 0
         };
@@ -335,10 +336,11 @@ private:
         db = nullptr;
     }
 
-    bool repository_update(struct apk_repository *repo, bool allow_untrusted)
+    bool repository_update(struct apk_repository *repo, Database::DbUpdateFlags flags)
     {
         int r = 0;
-        int verify_flag = allow_untrusted ? APK_SIGN_NONE : APK_SIGN_VERIFY;
+        int verify_flag = (flags & Database::QTAPK_UPDATE_ALLOW_UNTRUSTED)
+                ? APK_SIGN_NONE : APK_SIGN_VERIFY;
         constexpr int autoupdate = 1;
 
         qCDebug(LOG_QTAPK) << "Updating: [" << repo->url << "]"
@@ -586,10 +588,10 @@ bool Database::isOpen() const
 }
 
 
-bool Database::updatePackageIndex(bool allow_untrusted)
+bool Database::updatePackageIndex(DbUpdateFlags flags)
 {
     Q_D(Database);
-    return d->update(allow_untrusted);
+    return d->update(flags);
 }
 
 int Database::upgradeablePackagesCount()
@@ -621,10 +623,10 @@ bool Database::add(const QString &packageNameSpec)
     return d->add(packageNameSpec);
 }
 
-bool Database::del(const QString &packageNameSpec, bool delete_rdepends)
+bool Database::del(const QString &packageNameSpec, DbDelFlags flags)
 {
     Q_D(Database);
-    return d->del(packageNameSpec, delete_rdepends);
+    return d->del(packageNameSpec, flags);
 }
 
 QVector<Package> Database::getInstalledPackages() const

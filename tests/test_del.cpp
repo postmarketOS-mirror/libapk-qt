@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
     qDebug() << "OK: DB was opened!";
 
     const QString pkgName(QStringLiteral("fish"));
-    if (!db.del(pkgName, true)) {
+    if (!db.del(pkgName, QtApk::Database::QTAPK_DEL_DEFAULT)) {
         qWarning() << "Failed to delete package " << pkgName;
         // this test does not return 1 on error,
         // because it fails in minimal chroot,

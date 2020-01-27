@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
     }
     qDebug() << "OK: DB was opened!";
 
-    if (!db.updatePackageIndex(true)) {
+    if (!db.updatePackageIndex(QtApk::Database::QTAPK_UPDATE_ALLOW_UNTRUSTED)) {
         qWarning() << "WARNING: Failed to update DB!";
         ret = 1;
     } else {
