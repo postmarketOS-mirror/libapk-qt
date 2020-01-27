@@ -64,14 +64,16 @@ set_source_files_properties(
 )
 
 add_custom_command(
-    OUTPUT ${APKTOOLS_DIR}/libfetch/httperr.h
+    OUTPUT ${CMAKE_CURRENT_LIST_DIR}/${APKTOOLS_DIR}/libfetch/httperr.h
+    DEPENDS ${CMAKE_CURRENT_LIST_DIR}/${APKTOOLS_DIR}/libfetch/http.errors
     COMMENT "Generating error header httperr.h"
     VERBATIM
     COMMAND ${CMAKE_CURRENT_LIST_DIR}/${APKTOOLS_DIR}/libfetch/errlist.sh http_errlist http ${CMAKE_CURRENT_LIST_DIR}/${APKTOOLS_DIR}/libfetch/http.errors > ${CMAKE_CURRENT_LIST_DIR}/${APKTOOLS_DIR}/libfetch/httperr.h
 )
 
 add_custom_command(
-    OUTPUT ${APKTOOLS_DIR}/libfetch/ftperr.h
+    OUTPUT ${CMAKE_CURRENT_LIST_DIR}/${APKTOOLS_DIR}/libfetch/ftperr.h
+    DEPENDS ${CMAKE_CURRENT_LIST_DIR}/${APKTOOLS_DIR}/libfetch/ftp.errors
     COMMENT "Generating error header ftperr.h"
     VERBATIM
     COMMAND ${CMAKE_CURRENT_LIST_DIR}/${APKTOOLS_DIR}/libfetch/errlist.sh ftp_errlist ftp ${CMAKE_CURRENT_LIST_DIR}/${APKTOOLS_DIR}/libfetch/ftp.errors > ${CMAKE_CURRENT_LIST_DIR}/${APKTOOLS_DIR}/libfetch/ftperr.h
