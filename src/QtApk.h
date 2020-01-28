@@ -4,6 +4,7 @@
 #include <QString>
 #include <QVector>
 #include "QtApkPackage.h"
+#include "QtApkRepository.h"
 
 namespace QtApk {
 
@@ -45,6 +46,14 @@ public:
         QTAPK_DEL_DEFAULT = 0,    //! no flags
         QTAPK_DEL_RDEPENDS = 1    //! delete package and everything that depends on it
     };
+
+    /**
+     * @brief getRepositories
+     * Static function that parses /etc/apk/repositories and gets
+     * configured repositories list
+     * @return configured repositories list
+     */
+    static QVector<Repository> getRepositories();
     
     /**
      * @brief Database default constructor

@@ -186,6 +186,8 @@ set(QTAPK_SOURCES
     src/QtApk.cpp
     src/QtApkPackage.h
     src/QtApkPackage.cpp
+    src/QtApkRepository.h
+    src/QtApkRepository.cpp
     src/errorstr.cpp
     src/apk_time_workaround.cpp
 )
@@ -237,6 +239,7 @@ install(
     FILES
         src/QtApk.h
         src/QtApkPackage.h
+        src/QtApkRepository.h
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/ApkQt
 )
 

@@ -1,6 +1,7 @@
 #include "QtApk.h"
 #include <QDebug>
 #include <QLoggingCategory>
+#include <QFile>
 
 extern "C" {
 #include "apk_blob.h"
@@ -527,6 +528,30 @@ public:
 
 ///////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////
+
+QVector<Repository> Database::getRepositories()
+{
+    QVector<Repository> ret;
+    const QString fakeRoot = qEnvironmentVariable("QTAPK_FAKEROOT", QStringLiteral("/"));
+    const QString reposFile(QStringLiteral("%1/etc/apk/repositories").arg(fakeRoot));
+    QFile f(reposFile);
+    if (!f.open(QIODevice::ReadOnly)) {
+        qCWarning(LOG_QTAPK) << "Failed to open:" << reposFile;
+        return ret;
+    }
+    const QString comment(QLatin1String("/etc/apk/repositories"));
+    while (!f.atEnd()) {
+        QString line = QString::fromUtf8(f.readLine(1024)).trimmed();
+        bool enabled = true;
+        if (line.startsWith(QLatin1Char('#'))) {
+            enabled = false;
+            line = line.mid(1);
+        }
+        ret.append(Repository(line, comment, enabled));
+    }
+    f.close();
+    return ret;
+}
 
 Database::Database()
     : d_ptr(new DatabasePrivate(this))
