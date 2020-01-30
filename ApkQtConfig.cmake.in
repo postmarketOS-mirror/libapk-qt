@@ -21,7 +21,6 @@ set(APKQT_LIBRARIES apk-qt)
 set_target_properties(apk-qt
     PROPERTIES
     INTERFACE_INCLUDE_DIRECTORIES ${APKQT_INCLUDE_DIRS}
-    INTERFACE_LINK_LIBRARIES apk
 )
 
 include(CMakeFindDependencyMacro)
