@@ -84,7 +84,7 @@ add_custom_target(
     COMMENT "Applying custom patches for apk-tools..."
     WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/${APKTOOLS_DIR}
     VERBATIM
-    COMMAND git apply ../apk-tools-patches/cpp-compat.patch || true
+    COMMAND git apply ${CMAKE_CURRENT_LIST_DIR}/apk-tools-patches/cpp-compat.patch || true
 )
 
 # this source files list can be used to build apk executable itself
