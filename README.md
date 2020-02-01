@@ -26,7 +26,7 @@ Then a usual cmake build process, for example:
 
 ```
 mkdir build
-cmake -S . -B build/ -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=/usr
+cmake -S . -B build/ -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_INSTALL_LIBDIR=lib
 cmake --build build/ -j8
 sudo cmake --build build/ --target install
 ```
@@ -35,10 +35,11 @@ Requirements are only:
 
  * OpenSSL
  * ZLIB
- * Qt Core
+ * Qt5 Core
 
 Other useful cmake build options:
 
+ * APKTOOLS_DIR Path to Alpine apk-tools source directory, if you are not using default git submodule
  * BUILD_SHARED_LIBS (default ON) shared libs, that's obviously what we want
  * BUILD_TESTING (default OFF) build tests and enable `make test` target.
  * BUILD_DEVELOPER_MODE (default OFF) developer-only extra debug information. Don't enable in production
