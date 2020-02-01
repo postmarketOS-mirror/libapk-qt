@@ -184,6 +184,8 @@ target_link_libraries(apk
 set(QTAPK_SOURCES
     src/QtApk.h
     src/QtApk.cpp
+    src/QtApkChangeset.h
+    src/QtApkChangeset.cpp
     src/QtApkPackage.h
     src/QtApkPackage.cpp
     src/QtApkRepository.h

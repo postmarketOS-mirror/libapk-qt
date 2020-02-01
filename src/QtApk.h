@@ -5,6 +5,7 @@
 #include <QVector>
 #include "QtApkPackage.h"
 #include "QtApkRepository.h"
+#include "QtApkChangeset.h"
 
 namespace QtApk {
 
@@ -36,6 +37,16 @@ public:
     enum DbUpdateFlags {
         QTAPK_UPDATE_DEFAULT = 0,            //! no flags
         QTAPK_UPDATE_ALLOW_UNTRUSTED = 1     //! allow untrusted repository sources
+    };
+
+    /**
+     * @brief The DbUpgradeFlags enum
+     * Used in upgrade() method
+     */
+    enum DbUpgradeFlags {
+        QTAPK_UPGRADE_DEFAULT = 0,    //! No flags
+        QTAPK_UPGRADE_SIMULATE = 1    //! Do not do a real upgrade, only simulate.
+                                      //! Allows to get an "upgrade plan" first
     };
 
     /**
@@ -124,9 +135,12 @@ public:
      * @brief upgrade
      * Upgrade world.
      * Database needs to be opened for writing.
+     * @param flags upgrade flags, @see DbUpgradeFlags
+     * @param changes set of changes that apk will do to your
+     *                system during upgrade, @see Changeset
      * @return true if everything was OK
      */
-    bool upgrade();
+    bool upgrade(DbUpgradeFlags flags = QTAPK_UPGRADE_DEFAULT, Changeset *changes = nullptr);
 
     /**
      * @brief add

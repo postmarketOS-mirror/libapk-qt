@@ -102,8 +102,8 @@ public:
         return res;
     }
 
-    bool upgrade(int *num_install, int *num_remove, int *num_adjust,
-                 bool only_simulate)
+    bool upgrade(Database::DbUpgradeFlags flags = Database::QTAPK_UPGRADE_DEFAULT,
+                 Changeset *changes = nullptr)
     {
         if (!isOpen()) {
             qCWarning(LOG_QTAPK) << "upgrade: Database is not open!";
@@ -111,8 +111,11 @@ public:
         }
 
         struct apk_changeset changeset = {};
-        int r;
+        int r = 0;
         bool ret = false;
+        bool only_simulate = false;
+
+        if (flags & Database::QTAPK_UPGRADE_SIMULATE) only_simulate = true;
 
         if (apk_db_check_world(db, db->world) != 0) {
             qCWarning(LOG_QTAPK) << "upgrade: Missing repository tags. Use "
@@ -125,12 +128,29 @@ public:
         r = apk_solver_solve(db, solver_flags, db->world, &changeset);
         if (r == 0) {
             ret = true;
-            *num_install = changeset.num_install;
-            *num_remove = changeset.num_remove;
-            *num_adjust = changeset.num_adjust;
-            qCDebug(LOG_QTAPK) << "To install:" << (*num_install)
-                               << "; To remove:" << (*num_remove)
-                               << "; To adjust:" << (*num_adjust);
+
+            // fill changeset
+            if (changes) {
+                changes->setNumInstall(changeset.num_install);
+                changes->setNumRemove(changeset.num_remove);
+                changes->setNumAdjust(changeset.num_adjust);
+
+                // packages:
+                for (size_t iChange = 0; iChange < changeset.changes->num; iChange++) {
+                    struct apk_change *achange = &changeset.changes->item[iChange];
+                    ChangesetItem item;
+                    item.reinstall = achange->reinstall ? true : false;
+                    item.oldPackage = apk_package_to_QtApkPackage(achange->old_pkg);
+                    item.newPackage = apk_package_to_QtApkPackage(achange->new_pkg);
+                    if (item.newPackage.version != item.oldPackage.version) {
+                        changes->changes().append(std::move(item));
+                    }
+                }
+            }
+
+            qCDebug(LOG_QTAPK) << "To install:" << (changeset.num_install)
+                               << "; To remove:" << (changeset.num_remove)
+                               << "; To adjust:" << (changeset.num_adjust);
 
             // if we are not simulating upgrade, actually install packages
             if (!only_simulate) {
@@ -148,7 +168,6 @@ public:
             // for that case, but we will not use it here.
             qCWarning(LOG_QTAPK) << "upgrade: Failed to resolve world:"
                                  << qtapk_error_str(r);
-            num_install = num_remove = num_adjust = 0;
         }
 
         apk_change_array_free(&changeset.changes);
@@ -622,24 +641,20 @@ bool Database::updatePackageIndex(DbUpdateFlags flags)
 int Database::upgradeablePackagesCount()
 {
     Q_D(Database);
-    int total_upgrades = 0, num_install = 0,
-            num_remove = 0, num_adjust = 0;
-    constexpr bool only_simulate = true;
-    if (d->upgrade(&num_install, &num_remove, &num_adjust,
-                   only_simulate)) {
+    int totalUpgrades = 0;
+    Changeset changes;
+
+    if (d->upgrade(QTAPK_UPGRADE_SIMULATE, &changes)) {
         // Don't count packages to remove
-        total_upgrades = num_install + num_adjust;
+        totalUpgrades = changes.numInstall() + changes.numAdjust();
     }
-    return total_upgrades;
+    return totalUpgrades;
 }
 
-bool Database::upgrade()
+bool Database::upgrade(DbUpgradeFlags flags, Changeset *changes)
 {
     Q_D(Database);
-    int num_install = 0, num_remove = 0, num_adjust = 0;
-    constexpr bool only_simulate = false;
-    return d->upgrade(&num_install, &num_remove,
-                      &num_adjust, only_simulate);
+    return d->upgrade(flags, changes);
 }
 
 bool Database::add(const QString &packageNameSpec)
