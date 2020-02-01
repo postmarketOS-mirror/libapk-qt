@@ -4,6 +4,7 @@ project(apk-qt
     VERSION 2.10.4)
 
 cmake_policy(SET CMP0048 NEW)
+cmake_policy(SET CMP0071 OLD)
 
 include(GNUInstallDirs)
 include(FeatureSummary)
@@ -18,6 +19,7 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
+set(CMAKE_AUTOMOC ON)
 
 find_package(OpenSSL REQUIRED)
 find_package(ZLIB REQUIRED)

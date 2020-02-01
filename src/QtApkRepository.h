@@ -28,4 +28,6 @@ public:
 
 }
 
+Q_DECLARE_METATYPE(QtApk::Repository)
+
 #endif

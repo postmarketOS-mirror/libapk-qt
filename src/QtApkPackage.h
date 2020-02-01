@@ -23,7 +23,7 @@ class Package
     Q_PROPERTY(QString arch MEMBER arch)
     Q_PROPERTY(QString license MEMBER license)
     Q_PROPERTY(QString origin MEMBER origin)
-    Q_PROPERTY(QString mantainer MEMBER mantainer)
+    Q_PROPERTY(QString maintainer MEMBER maintainer)
     Q_PROPERTY(QString url MEMBER url)
     Q_PROPERTY(QString description MEMBER description)
     Q_PROPERTY(QString commit MEMBER commit)
@@ -60,5 +60,7 @@ public:
 
 
 } // namespace QtApk
+
+Q_DECLARE_METATYPE(QtApk::Package)
 
 #endif
