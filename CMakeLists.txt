@@ -240,6 +240,7 @@ install(
 install(
     FILES
         src/QtApk.h
+        src/QtApkChangeset.h
         src/QtApkPackage.h
         src/QtApkRepository.h
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/ApkQt
