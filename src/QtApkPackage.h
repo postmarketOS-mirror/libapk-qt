@@ -4,6 +4,7 @@
 #include <QString>
 #include <QObject>
 #include <QDateTime>
+#include <QVector>
 
 class QDataStream;
 
@@ -66,5 +67,7 @@ Q_DECLARE_METATYPE(QtApk::Package)
 
 QDataStream &operator<<(QDataStream &stream, const QtApk::Package &pkg);
 QDataStream &operator>>(QDataStream &stream, QtApk::Package &pkg);
+QDataStream &operator<<(QDataStream &stream, const QVector<QtApk::Package> &pkgVec);
+QDataStream &operator>>(QDataStream &stream, QVector<QtApk::Package> &pkgVec);
 
 #endif

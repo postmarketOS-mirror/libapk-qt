@@ -57,3 +57,25 @@ QDataStream &operator>>(QDataStream &stream, QtApk::Package &pkg)
     stream >> pkg.buildTime;
     return stream;
 }
+
+QDataStream &operator<<(QDataStream &stream, const QVector<QtApk::Package> &pkgVec)
+{
+    stream << pkgVec.size();
+    for (const QtApk::Package &pkg : pkgVec) {
+        stream << pkg;
+    }
+    return stream;
+}
+
+QDataStream &operator>>(QDataStream &stream, QVector<QtApk::Package> &pkgVec)
+{
+    int sz = 0;
+    stream >> sz;
+    pkgVec.reserve(sz);
+    for (int i = 0; i < sz; i++) {
+        QtApk::Package pkg;
+        stream >> pkg;
+        pkgVec.append(std::move(pkg));
+    }
+    return stream;
+}

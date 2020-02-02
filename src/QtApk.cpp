@@ -131,6 +131,7 @@ public:
 
             // fill changeset
             if (changes) {
+                changes->changes().clear();
                 changes->setNumInstall(changeset.num_install);
                 changes->setNumRemove(changeset.num_remove);
                 changes->setNumAdjust(changeset.num_adjust);
@@ -585,8 +586,9 @@ Database::Database()
     // register types withing Qt's type system
     // it will allow us to use our types with QVariant
     // and in signal-slot connections
-    qRegisterMetaType<QtApk::Package>();
-    qRegisterMetaTypeStreamOperators<QtApk::Package>();
+    qRegisterMetaType<QtApk::Package>("QtApk::Package");
+    qRegisterMetaTypeStreamOperators<QtApk::Package>("QtApk::Package");
+    qRegisterMetaTypeStreamOperators<QVector<QtApk::Package>>("QVector<QtApk::Package>");
 }
 
 Database::~Database()
