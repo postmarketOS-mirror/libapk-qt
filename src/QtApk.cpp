@@ -10,7 +10,9 @@ extern "C" {
 #include "apk_version.h"
 #include "apk_solver.h"
 #include "apk_package.h"
+#include "apk_print.h"
 }
+#include <unistd.h>
 
 #ifdef QT_DEBUG
 Q_LOGGING_CATEGORY(LOG_QTAPK, "qtapk", QtDebugMsg);
@@ -48,12 +50,21 @@ public:
     DatabasePrivate(Database *q)
         : q_ptr(q)
     {
+        progress_fd[0] = 0; // read end
+        progress_fd[1] = 0; // write end
     }
 
     ~DatabasePrivate()
     {
         close();
+        if (progress_fd[0] != 0) ::close(progress_fd[0]);
+        if (progress_fd[1] != 0) ::close(progress_fd[1]);
+        progress_fd[0] = 0;
+        progress_fd[1] = 0;
     }
+
+    // return read end of the pipe
+    int progressFd() const { return progress_fd[0]; }
     
     bool open(unsigned long open_flags)
     {
@@ -61,6 +72,10 @@ public:
         if (r != 0) {
             dbclose();
             return false;
+        }
+        if (::pipe(progress_fd) == 0) {
+            apk_flags |= APK_PROGRESS;
+            apk_progress_fd = progress_fd[1]; // write end
         }
         return true;
     }
@@ -357,6 +372,13 @@ private:
         db = nullptr;
     }
 
+    static void repoupdate_progress_cb(void *cb_ctx, size_t p)
+    {
+        Q_UNUSED(cb_ctx)
+        Q_UNUSED(p)
+        // qCDebug(LOG_QTAPK) << "repoupdate_progress_cb: " << p;
+    }
+
     bool repository_update(struct apk_repository *repo, Database::DbUpdateFlags flags)
     {
         int r = 0;
@@ -368,7 +390,7 @@ private:
                            << apk_blob_cstr(repo->description);
 
         r = apk_cache_download(db, repo, nullptr, verify_flag, autoupdate,
-                               nullptr, nullptr);
+                               repoupdate_progress_cb, static_cast<void *>(this));
         if (r == -EALREADY) {
             return true;
         }
@@ -544,6 +566,7 @@ public:
     // libapk structs
     struct apk_db_options db_opts;
     struct apk_database *db = nullptr;
+    int progress_fd[2];
 };
 
 ///////////////////////////////////////////////////////////////////
@@ -687,6 +710,12 @@ QVector<Package> Database::getAvailablePackages() const
 {
     Q_D(const Database);
     return d->get_available_packages();
+}
+
+int Database::progressFd() const
+{
+    Q_D(const Database);
+    return d->progressFd();
 }
 
 #ifdef QTAPK_DEVELOPER_BUILD

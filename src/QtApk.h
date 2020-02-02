@@ -175,6 +175,14 @@ public:
      */
     QVector<Package> getAvailablePackages() const;
 
+    /**
+     * @brief progressFd
+     * libapk has option to write operation progress into some file descriptor.
+     * Format for each progress update step is "%u/%u\n"
+     * @return file descriptor you can select()/read() from for progress updates
+     */
+    int progressFd() const;
+
 #ifdef QTAPK_DEVELOPER_BUILD
     // extra debugging functions here, not part of
     //    public library interface
