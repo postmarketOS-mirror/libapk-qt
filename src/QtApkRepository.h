@@ -3,6 +3,8 @@
 
 #include <QObject>
 
+class QDataStream;
+
 namespace QtApk {
 
 class Repository {
@@ -29,5 +31,8 @@ public:
 }
 
 Q_DECLARE_METATYPE(QtApk::Repository)
+
+QDataStream &operator<<(QDataStream &stream, const QtApk::Repository &pkg);
+QDataStream &operator>>(QDataStream &stream, QtApk::Repository &pkg);
 
 #endif

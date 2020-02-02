@@ -5,6 +5,7 @@
 #include <QObject>
 #include <QDateTime>
 
+class QDataStream;
 
 namespace QtApk {
 
@@ -62,5 +63,8 @@ public:
 } // namespace QtApk
 
 Q_DECLARE_METATYPE(QtApk::Package)
+
+QDataStream &operator<<(QDataStream &stream, const QtApk::Package &pkg);
+QDataStream &operator>>(QDataStream &stream, QtApk::Package &pkg);
 
 #endif

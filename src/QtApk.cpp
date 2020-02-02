@@ -581,6 +581,12 @@ Database::Database()
                            << qgetenv("QTAPK_FAKEROOT");
         setFakeRoot(qEnvironmentVariable("QTAPK_FAKEROOT"));
     }
+
+    // register types withing Qt's type system
+    // it will allow us to use our types with QVariant
+    // and in signal-slot connections
+    qRegisterMetaType<QtApk::Package>();
+    qRegisterMetaTypeStreamOperators<QtApk::Package>();
 }
 
 Database::~Database()
