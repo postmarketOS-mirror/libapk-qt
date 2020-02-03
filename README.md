@@ -12,8 +12,7 @@ interface to Alpine Linux's libapk
 Need to fetch Alpine's apk-tools sources from another repository:
 
 ```
-git submodule init
-git submodule update
+git submodule update --init
 ```
 
 Install build dependencies (example for Alpine):
