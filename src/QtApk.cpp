@@ -377,6 +377,30 @@ private:
         Q_UNUSED(cb_ctx)
         Q_UNUSED(p)
         // qCDebug(LOG_QTAPK) << "repoupdate_progress_cb: " << p;
+        // useless, numbers are too unpredictable
+        /*
+         * OK: DB was opened!
+         * qtapk: Updating: [ http://mirror.yandex.ru/mirrors/alpine/v3.11/main ] v3.11.3-31-g2e6d6d513d
+         * fetch http://mirror.yandex.ru/mirrors/alpine/v3.11/main/x86_64/APKINDEX.tar.gz
+         * qtapk: repoupdate_progress_cb:  0
+         * qtapk: repoupdate_progress_cb:  0
+         * qtapk: repoupdate_progress_cb:  262144
+         * qtapk: repoupdate_progress_cb:  524288
+         * qtapk: repoupdate_progress_cb:  719075
+         * qtapk: Updating: [ http://mirror.yandex.ru/mirrors/alpine/v3.11/community ] v3.11.3-30-g2d9c1a116c
+         * fetch http://mirror.yandex.ru/mirrors/alpine/v3.11/community/x86_64/APKINDEX.tar.gz
+         * qtapk: repoupdate_progress_cb:  0
+         * qtapk: repoupdate_progress_cb:  0
+         * qtapk: repoupdate_progress_cb:  262144
+         * qtapk: repoupdate_progress_cb:  524288
+         * qtapk: repoupdate_progress_cb:  786432
+         * qtapk: repoupdate_progress_cb:  855159
+         * qtapk: Updated:  2 ; Update errors:  0
+         * qtapk: 11276  distinct packages available
+         * OK: DB was updated!
+         * qtapk: To install: 0 ; To remove: 0 ; To adjust: 18
+         * 18  packages can be updated.
+         * */
     }
 
     bool repository_update(struct apk_repository *repo, Database::DbUpdateFlags flags)
