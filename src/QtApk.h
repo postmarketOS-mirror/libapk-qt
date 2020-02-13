@@ -25,10 +25,12 @@ public:
      * @brief The DbOpenFlags enum
      * Used in open() method
      */
-    enum DbOpenFlags {
-        QTAPK_OPENF_READONLY,   //! open database only for querying info 
-        QTAPK_OPENF_READWRITE,  //! open for package manipulation, may need superuser rights
+    enum DbOpenFlagEnum {
+        QTAPK_OPENF_READONLY = 0x1,           //! open database only for querying info
+        QTAPK_OPENF_READWRITE = 0x2,          //! open for package manipulation, may need superuser rights
+        QTAPK_OPENF_ENABLE_PROGRESSFD = 0x4,  //! open pipe channel to libapk to receive progress updates
     };
+    Q_DECLARE_FLAGS(DbOpenFlags, DbOpenFlagEnum)
 
     /**
      * @brief The DbUpdateFlags enum
@@ -194,6 +196,8 @@ private:
     Q_DECLARE_PRIVATE(Database)
     Q_DISABLE_COPY(Database)
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(Database::DbOpenFlags)
 
 } // namespace QtApk
 

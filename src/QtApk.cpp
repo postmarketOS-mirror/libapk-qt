@@ -66,16 +66,17 @@ public:
     // return read end of the pipe
     int progressFd() const { return progress_fd[0]; }
     
-    bool open(unsigned long open_flags)
+    bool open(unsigned long open_flags, bool use_progressfd = false)
     {
         int r = dbopen(open_flags);
         if (r != 0) {
             dbclose();
             return false;
         }
-        if (::pipe(progress_fd) == 0) {
-            apk_flags |= APK_PROGRESS;
-            apk_progress_fd = progress_fd[1]; // write end
+        if (use_progressfd) {
+            if (::pipe(progress_fd) == 0) {
+                apk_progress_fd = progress_fd[1]; // write end
+            }
         }
         return true;
     }
@@ -663,15 +664,19 @@ bool Database::open(DbOpenFlags flags)
 
     // map flags from DbOpenFlags enum to libapk defines
     unsigned long openf = 0;
-    switch (flags) {
-    case QTAPK_OPENF_READONLY:
-        openf = DatabasePrivate::DBOPENF_READONLY;
-        break;
-    case QTAPK_OPENF_READWRITE:
+    bool use_progressfd = false;
+
+    if (flags & QTAPK_OPENF_READWRITE) {
         openf = DatabasePrivate::DBOPENF_READWRITE;
-        break;
+    } else if (flags & QTAPK_OPENF_READONLY) {
+        openf = DatabasePrivate::DBOPENF_READONLY;
     }
-    return d->open(openf);
+
+    if (flags & QTAPK_OPENF_ENABLE_PROGRESSFD) {
+        use_progressfd = true;
+    }
+
+    return d->open(openf, use_progressfd);
 }
 
 void Database::close()
