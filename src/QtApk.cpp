@@ -524,6 +524,11 @@ private:
     static Package apk_package_to_QtApkPackage(struct apk_package *pkg)
     {
         Package qpkg;
+
+        if (!pkg) {
+            return qpkg;
+        }
+
         qpkg.name = QString::fromUtf8(pkg->name->name);
         if (pkg->version)
             qpkg.version = QString::fromUtf8(apk_blob_cstr(*pkg->version));
