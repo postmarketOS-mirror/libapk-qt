@@ -18,6 +18,14 @@ Package::~Package()
 {
 }
 
+bool Package::isEmpty() const
+{
+    if (name.isEmpty() || version.isEmpty() || arch.isEmpty()) {
+        return true;
+    }
+    return false;
+}
+
 
 } // namespace QtApk
 

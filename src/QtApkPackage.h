@@ -44,6 +44,8 @@ public:
     Package &operator=(const Package &other) = default;
     Package &operator=(Package &&other) = default;
 
+    Q_INVOKABLE bool isEmpty() const;
+
 public:
     QString name;
     QString version;
