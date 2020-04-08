@@ -264,6 +264,7 @@ set(APKQT_CMAKE_CONFIG_INSTALL_DIR "${CMAKE_INSTALL_LIBDIR}/cmake/ApkQt")
 
 install(
     EXPORT ApkQtTargets
+    NAMESPACE ApkQt::
     DESTINATION ${APKQT_CMAKE_CONFIG_INSTALL_DIR}
     FILE ApkQtTargets.cmake
 )
