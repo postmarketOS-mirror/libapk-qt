@@ -7,6 +7,8 @@
 #include "QtApkRepository.h"
 #include "QtApkChangeset.h"
 
+#include "qtapk_exports.h"
+
 namespace QtApk {
 
 
@@ -19,7 +21,7 @@ class DatabasePrivate;
  * Instantiate this class first, call open() to start working,
  * do some work, then call close() when finished.
  */
-class Database {
+class QTAPK_EXPORTS Database {
 public:
     /**
      * @brief The DbOpenFlags enum

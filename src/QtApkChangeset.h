@@ -4,9 +4,11 @@
 #include <QVector>
 #include "QtApkPackage.h"
 
+#include "qtapk_exports.h"
+
 namespace QtApk {
 
-class ChangesetItem
+class QTAPK_EXPORTS ChangesetItem
 {
 public:
     ChangesetItem();
@@ -22,7 +24,7 @@ public:
  * when installing, deleting packages, or during
  * system upgrade
  */
-class Changeset
+class QTAPK_EXPORTS Changeset
 {
 public:
     Changeset();

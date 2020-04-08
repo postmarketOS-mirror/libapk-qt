@@ -182,7 +182,6 @@ target_link_libraries(apk
         OpenSSL::Crypto
 )
 
-
 set(QTAPK_SOURCES
     src/QtApk.h
     src/QtApk.cpp
@@ -219,6 +218,17 @@ target_link_libraries(apk-qt
         apk
 )
 
+include(GenerateExportHeader)
+
+generate_export_header(apk-qt
+    EXPORT_FILE_NAME  qtapk_exports.h
+    EXPORT_MACRO_NAME QTAPK_EXPORTS
+)
+
+set_target_properties(apk-qt
+    PROPERTIES
+    CXX_VISIBILITY_PRESET hidden
+)
 
 if (BUILD_SHARED_LIBS)
     # Shared libraries should be build with -fPIC
@@ -245,6 +255,7 @@ install(
         src/QtApkChangeset.h
         src/QtApkPackage.h
         src/QtApkRepository.h
+        ${PROJECT_BINARY_DIR}/qtapk_exports.h
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/ApkQt
 )
 

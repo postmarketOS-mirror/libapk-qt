@@ -6,6 +6,8 @@
 #include <QDateTime>
 #include <QVector>
 
+#include "qtapk_exports.h"
+
 class QDataStream;
 
 namespace QtApk {
@@ -17,7 +19,7 @@ namespace QtApk {
  * Kind of a Qt's variant of struct apk_package
  * without all complex stuff.
  */
-class Package
+class QTAPK_EXPORTS Package
 {
     Q_GADGET
     Q_PROPERTY(QString name MEMBER name)

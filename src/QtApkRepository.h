@@ -3,11 +3,13 @@
 
 #include <QObject>
 
+#include "qtapk_exports.h"
+
 class QDataStream;
 
 namespace QtApk {
 
-class Repository {
+class QTAPK_EXPORTS Repository {
     Q_GADGET
     Q_PROPERTY(QString url MEMBER url)
     Q_PROPERTY(QString comment MEMBER comment)
