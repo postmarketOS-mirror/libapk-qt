@@ -116,18 +116,18 @@ set(APKTOOLS_APKEXE_SOURCES
 
 # we only statically build libapk, so we use only library sources
 set(APKTOOLS_LIB_SOURCES
-    ${APKTOOLS_DIR}/src/archive.c
     ${APKTOOLS_DIR}/src/blob.c
     ${APKTOOLS_DIR}/src/commit.c
     ${APKTOOLS_DIR}/src/common.c
     ${APKTOOLS_DIR}/src/database.c
-    ${APKTOOLS_DIR}/src/gunzip.c
     ${APKTOOLS_DIR}/src/hash.c
     ${APKTOOLS_DIR}/src/io.c
+    ${APKTOOLS_DIR}/src/io_archive.c
+    ${APKTOOLS_DIR}/src/io_gunzip.c
+    ${APKTOOLS_DIR}/src/io_url.c
     ${APKTOOLS_DIR}/src/package.c
     ${APKTOOLS_DIR}/src/print.c
     ${APKTOOLS_DIR}/src/solver.c
-    ${APKTOOLS_DIR}/src/url.c
     ${APKTOOLS_DIR}/src/version.c
 )
 
