@@ -8,6 +8,10 @@
 
 namespace QtApk {
 
+/**
+ * @class ChangesetItem
+ * @brief Single change withing a Changeset
+ */
 class QTAPK_EXPORTS ChangesetItem
 {
 public:
@@ -19,6 +23,7 @@ public:
 };
 
 /**
+ * @class Changeset
  * @brief The Changeset class
  * Represents set of changes APK will apply
  * when installing, deleting packages, or during

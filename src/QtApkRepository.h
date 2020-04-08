@@ -2,6 +2,7 @@
 #define H_QTAPK_REPOSITORY
 
 #include <QObject>
+#include <QVector>
 
 #include "qtapk_exports.h"
 
@@ -9,6 +10,12 @@ class QDataStream;
 
 namespace QtApk {
 
+/**
+ * @class Repository
+ * @brief Information about package repository
+ *
+ * Represents information about a package repo.
+ */
 class QTAPK_EXPORTS Repository {
     Q_GADGET
     Q_PROPERTY(QString url MEMBER url)
@@ -34,7 +41,9 @@ public:
 
 Q_DECLARE_METATYPE(QtApk::Repository)
 
-QDataStream &operator<<(QDataStream &stream, const QtApk::Repository &pkg);
-QDataStream &operator>>(QDataStream &stream, QtApk::Repository &pkg);
+QDataStream &operator<<(QDataStream &stream, const QtApk::Repository &repo);
+QDataStream &operator>>(QDataStream &stream, QtApk::Repository &repo);
+QDataStream &operator<<(QDataStream &stream, const QVector<QtApk::Repository> &repoVec);
+QDataStream &operator>>(QDataStream &stream, QVector<QtApk::Repository> &repoVec);
 
 #endif

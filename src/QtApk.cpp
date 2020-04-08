@@ -642,6 +642,9 @@ Database::Database()
     qRegisterMetaType<QtApk::Package>("QtApk::Package");
     qRegisterMetaTypeStreamOperators<QtApk::Package>("QtApk::Package");
     qRegisterMetaTypeStreamOperators<QVector<QtApk::Package>>("QVector<QtApk::Package>");
+    qRegisterMetaType<QtApk::Repository>("QtApk::Repository");
+    qRegisterMetaTypeStreamOperators<QtApk::Repository>("QtApk::Repository");
+    qRegisterMetaTypeStreamOperators<QVector<QtApk::Repository>>("QVector<QtApk::Repository>");
 }
 
 Database::~Database()

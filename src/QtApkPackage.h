@@ -14,6 +14,7 @@ namespace QtApk {
 
 
 /**
+ * @class Package
  * @brief The Package class
  * Represents information about a single package.
  * Kind of a Qt's variant of struct apk_package
