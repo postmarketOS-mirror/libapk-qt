@@ -200,6 +200,8 @@ set(QTAPK_SOURCES
     src/QtApkRepository.cpp
     src/errorstr.cpp
     src/apk_time_workaround.cpp
+    src/private/QtApkDatabase_private.h
+    src/private/QtApkDatabase_private.cpp
 )
 
 
