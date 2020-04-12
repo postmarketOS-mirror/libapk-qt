@@ -1,7 +1,14 @@
 cmake_minimum_required(VERSION 3.5)
+
+set(QTAPK_VERSION_MAJOR 0)
+set(QTAPK_VERSION_MINOR 1)
+set(QTAPK_VERSION_PATCH 0)
+set(QTAPK_VERSION_STRING "${QTAPK_VERSION_MAJOR}.${QTAPK_VERSION_MINOR}.${QTAPK_VERSION_PATCH}")
+
 project(apk-qt
     LANGUAGES C CXX
-    VERSION 2.10.4)
+    VERSION ${QTAPK_VERSION_MAJOR}.${QTAPK_VERSION_MINOR}.${QTAPK_VERSION_PATCH}
+)
 
 cmake_policy(SET CMP0048 NEW)
 cmake_policy(SET CMP0071 OLD)
@@ -225,9 +232,14 @@ generate_export_header(apk-qt
     EXPORT_MACRO_NAME QTAPK_EXPORTS
 )
 
+configure_file(src/QtApk_version.h.in QtApk_version.h)
+
 set_target_properties(apk-qt
     PROPERTIES
+    EXPORT_NAME ApkQt
     CXX_VISIBILITY_PRESET hidden
+    SOVERSION "${QTAPK_VERSION_MAJOR}.${QTAPK_VERSION_MINOR}"
+    VERSION "${QTAPK_VERSION_STRING}"
 )
 
 if (BUILD_SHARED_LIBS)
@@ -256,6 +268,7 @@ install(
         src/QtApkPackage.h
         src/QtApkRepository.h
         ${PROJECT_BINARY_DIR}/qtapk_exports.h
+        ${PROJECT_BINARY_DIR}/QtApk_version.h
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/ApkQt
 )
 

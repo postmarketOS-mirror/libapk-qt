@@ -2,11 +2,11 @@
 
 # - CMake package config file for the ApkQt package
 
-if(NOT TARGET ApkQt::apk-qt)
+if(NOT TARGET ApkQt::ApkQt)
   include("${CMAKE_CURRENT_LIST_DIR}/ApkQtTargets.cmake")
 endif()
 
-set_target_properties(ApkQt::apk-qt
+set_target_properties(ApkQt::ApkQt
     PROPERTIES
     INTERFACE_INCLUDE_DIRECTORIES @PACKAGE_CMAKE_INSTALL_INCLUDEDIR@/ApkQt
 )

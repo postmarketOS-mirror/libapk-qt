@@ -1,0 +1,15 @@
+#ifndef QTAPK_VERSION_H
+#define QTAPK_VERSION_H
+
+/* This file is generated during build time. */
+
+#define QTAPK_VERSION_MAJOR @QTAPK_VERSION_MAJOR@
+#define QTAPK_VERSION_MINOR @QTAPK_VERSION_MINOR@
+#define QTAPK_VERSION_PATCH @QTAPK_VERSION_PATCH@
+#define QTAPK_VERSION ((QTAPK_VERSION_MAJOR << 16) | (QTAPK_VERSION_MINOR << 8) | (QTAPK_VERSION_PATCH))
+#cmakedefine QTAPK_VERSION_STRING "@QTAPK_VERSION_MAJOR@.@QTAPK_VERSION_MINOR@.@QTAPK_VERSION_PATCH@"
+/* Analog to QT_VERSION_CHECK macro, can be used in comparisons like: */
+/* #if QTAPK_VERSION >= QTAPK_VERSION_CHECK(0, 1, 1) ... #endif */
+#define QTAPK_VERSION_CHECK(major, minor, patch) ((major << 16) | (minor << 8) | (patch))
+
+#endif
