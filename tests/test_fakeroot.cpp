@@ -3,7 +3,7 @@
 #include <QCommandLineParser>
 #include <QDebug>
 
-#include <QtApk.h>
+#include <QtApk>
 
 int main(int argc, char *argv[])
 {

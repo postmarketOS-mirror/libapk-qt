@@ -5,7 +5,7 @@
 #include <QVector>
 #include <QLoggingCategory>
 
-#include "../QtApk.h"
+#include "../QtApkDatabase.h"
 #include "../QtApkPackage.h"
 #include "../QtApkRepository.h"
 #include "../QtApkChangeset.h"

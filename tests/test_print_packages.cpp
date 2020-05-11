@@ -3,7 +3,7 @@
 #include <QCommandLineParser>
 #include <QDebug>
 
-#include <QtApk.h>
+#include <QtApk>
 
 static void printPkgs(const char *comment, const QVector<QtApk::Package> &pkgs)
 {

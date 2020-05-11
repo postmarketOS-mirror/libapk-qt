@@ -1,5 +1,7 @@
-#include "QtApk.h"
 #include "private/QtApkDatabase_private.h"
+#include "QtApkDatabase.h"
+#include <QDebug>
+#include <QLoggingCategory>
 #include <QFile>
 
 

@@ -1,0 +1,9 @@
+#ifndef H_QTAPK
+#define H_QTAPK
+
+#include "QtApkPackage.h"
+#include "QtApkRepository.h"
+#include "QtApkChangeset.h"
+#include "QtApkDatabase.h"
+
+#endif

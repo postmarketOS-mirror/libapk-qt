@@ -6,7 +6,7 @@
 #include <QSocketNotifier>
 #include <QTimer>
 
-#include <QtApk.h>
+#include <QtApk>
 
 class EventLoopTestRunner: public QObject
 {

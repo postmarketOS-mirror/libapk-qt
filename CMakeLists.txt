@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.5)
 
 set(QTAPK_VERSION_MAJOR 0)
-set(QTAPK_VERSION_MINOR 1)
+set(QTAPK_VERSION_MINOR 2)
 set(QTAPK_VERSION_PATCH 0)
 set(QTAPK_VERSION_STRING "${QTAPK_VERSION_MAJOR}.${QTAPK_VERSION_MINOR}.${QTAPK_VERSION_PATCH}")
 
@@ -190,8 +190,9 @@ target_link_libraries(apk
 )
 
 set(QTAPK_SOURCES
-    src/QtApk.h
-    src/QtApk.cpp
+    src/QtApk
+    src/QtApkDatabase.h
+    src/QtApkDatabase.cpp
     src/QtApkChangeset.h
     src/QtApkChangeset.cpp
     src/QtApkPackage.h
@@ -265,7 +266,8 @@ install(
 # Install development headers
 install(
     FILES
-        src/QtApk.h
+        src/QtApk
+        src/QtApkDatabase.h
         src/QtApkChangeset.h
         src/QtApkPackage.h
         src/QtApkRepository.h

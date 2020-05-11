@@ -1,5 +1,5 @@
-#ifndef H_QTAPK
-#define H_QTAPK
+#ifndef H_QTAPKDATABASE
+#define H_QTAPKDATABASE
 
 #include <QString>
 #include <QVector>
