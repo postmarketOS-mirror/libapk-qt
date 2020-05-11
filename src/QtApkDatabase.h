@@ -20,6 +20,10 @@ class DatabasePrivate;
  *
  * Instantiate this class first, call open() to start working,
  * do some work, then call close() when finished.
+ *
+ * All method calls in this class are synchronous (caller is
+ * blocked until return), so it does not require event loop
+ * to be running, and does not have signals.
  */
 class QTAPK_EXPORTS Database {
 public:
