@@ -1,12 +1,17 @@
-#include <QCoreApplication>
-#include <QObject>
 #include <QCommandLineOption>
 #include <QCommandLineParser>
+#include <QCoreApplication>
 #include <QDebug>
+#include <QObject>
 #include <QSocketNotifier>
+#include <QThread>
 #include <QTimer>
 
 #include <QtApk>
+
+#include <cstdlib>
+#include <cstdint>
+#include <unistd.h>
 
 class EventLoopTestRunner: public QObject
 {
@@ -29,11 +34,8 @@ public:
         return true;
     }
 
-    void run() {
-        QSocketNotifier sn(db.progressFd(), QSocketNotifier::Read);
-        sn_conn = QObject::connect(&sn, &QSocketNotifier::activated,
-                                   this, &EventLoopTestRunner::onSocketActivated);
-
+    // this function runs in the background thread
+    void backgroundOps() {
         if (!db.updatePackageIndex(QtApk::Database::QTAPK_UPDATE_ALLOW_UNTRUSTED)) {
             qWarning() << "WARNING: Failed to update DB!";
             db.close();
@@ -42,34 +44,33 @@ public:
         qDebug() << "OK: DB was updated!";
         qDebug() << db.upgradeablePackagesCount() << " packages can be updated.";
 
-        const QString pkgName(QStringLiteral("fish"));
+        const QString pkgName(QStringLiteral("clang"));
+        qDebug() << "=== Install start ===";
         if (!db.add(pkgName)) {
             qWarning() << "Failed to install package " << pkgName;
         }
 
+        qDebug() << "=== Uninstall start ===";
         if (!db.del(pkgName)) {
             qWarning() << "Failed to remove package:" << pkgName;
         }
 
-        QObject::disconnect(sn_conn);
-        QCoreApplication::quit();
+        // report that we're done
+        Q_EMIT backgroundOpsComplete();
     }
 
-public Q_SLOTS:
-    void onSocketActivated(int sock) {
-        Q_UNUSED(sock)
-        qDebug() << "socket notifier activated! can read!";
-    }
+Q_SIGNALS:
+    void backgroundOpsComplete();
 
 public:
     QtApk::Database db;
-    QMetaObject::Connection sn_conn;
 };
 
 int main(int argc, char *argv[])
 {
     QCoreApplication app(argc, argv);
 
+    QThread bgThread;
     EventLoopTestRunner runner;
 
     QCommandLineOption root_option(
@@ -89,11 +90,41 @@ int main(int argc, char *argv[])
         qWarning() << "Failed to open APK DB!";
         return 1;
     }
-    qDebug() << "OK: DB was opened!";
 
-    QTimer::singleShot(0, &runner, &EventLoopTestRunner::run);
-    QTimer::singleShot(30000, &app, &QCoreApplication::quit);
+    // make it so that runner's slots are executed on the bg thread
+    runner.moveToThread(&bgThread);
 
+    QSocketNotifier sn(runner.db.progressFd(), QSocketNotifier::Read);
+    qDebug() << "apk progress_fd = " << runner.db.progressFd();
+
+    QObject::connect(&sn, &QSocketNotifier::activated, [](int sock) {
+        char buf[64] = {0}; // 64 should be enough for everyone
+        std::size_t nr = ::read(sock, buf, sizeof(buf)-1);
+        if (nr > 0) {
+            uint64_t p1, p2;
+            ::sscanf(buf, "%lu/%lu", &p1, &p2);
+            uint64_t ipercent = 0;
+            if (p2) {
+                ipercent = 100 * p1 / p2;
+            }
+            qDebug() << ipercent << "% (" << p1 << " / " << p2 << ")";
+        }
+    });
+
+    // once operation is complete, shutdown bg thread and also quit mainloop
+    QObject::connect(&runner, &EventLoopTestRunner::backgroundOpsComplete, &bgThread, &QThread::quit);
+    QObject::connect(&runner, &EventLoopTestRunner::backgroundOpsComplete, &app, QCoreApplication::quit);
+
+    // as soon as mainloop starts, run bg ops
+    QTimer::singleShot(0, &runner, &EventLoopTestRunner::backgroundOps);
+
+    // just to be safe, exit in any case in 120 seconds
+    QTimer::singleShot(120000, &app, []() {
+        qDebug() << "Quitting by timer!";
+        QCoreApplication::quit();
+    });
+
+    bgThread.start();
     int mainret = app.exec();
 
     return mainret;
