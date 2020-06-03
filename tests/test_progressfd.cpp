@@ -28,8 +28,8 @@ public:
 
 public:
     bool openDb() {
-        if (!db.open(QtApk::Database::QTAPK_OPENF_READWRITE
-                     | QtApk::Database::QTAPK_OPENF_ENABLE_PROGRESSFD)) {
+        if (!db.open(QtApk::QTAPK_OPENF_READWRITE
+                     | QtApk::QTAPK_OPENF_ENABLE_PROGRESSFD)) {
             return false;
         }
         qDebug() << "OK: DB was opened!";
@@ -38,7 +38,7 @@ public:
 
     // this function runs in the background thread
     void backgroundOps() {
-        if (!db.updatePackageIndex(QtApk::Database::QTAPK_UPDATE_ALLOW_UNTRUSTED)) {
+        if (!db.updatePackageIndex(QtApk::QTAPK_UPDATE_ALLOW_UNTRUSTED)) {
             qWarning() << "WARNING: Failed to update DB!";
             db.close();
             return;

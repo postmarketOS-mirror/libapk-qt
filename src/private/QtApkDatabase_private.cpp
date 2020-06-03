@@ -52,14 +52,14 @@ DatabasePrivate::~DatabasePrivate()
     progress_fd[1] = 0;
 }
 
-bool DatabasePrivate::open(Database::DbOpenFlags flags)
+bool DatabasePrivate::open(DbOpenFlags flags)
 {
     // map flags from DbOpenFlags enum to libapk defines
     unsigned long open_flags = 0;
 
-    if (flags & Database::QTAPK_OPENF_READWRITE) {
+    if (flags & QTAPK_OPENF_READWRITE) {
         open_flags = DBOPENF_READWRITE;
-    } else if (flags & Database::QTAPK_OPENF_READONLY) {
+    } else if (flags & QTAPK_OPENF_READONLY) {
         open_flags = DBOPENF_READONLY;
     }
 
@@ -68,7 +68,7 @@ bool DatabasePrivate::open(Database::DbOpenFlags flags)
         dbclose();
         return false;
     }
-    if (flags & Database::QTAPK_OPENF_ENABLE_PROGRESSFD) {
+    if (flags & QTAPK_OPENF_ENABLE_PROGRESSFD) {
         if (::pipe(progress_fd) == 0) {
             ::apk_progress_fd = progress_fd[1]; // write end
         }
@@ -87,7 +87,7 @@ bool DatabasePrivate::isOpen() const
     return (db->open_complete != 0);
 }
 
-bool DatabasePrivate::update(Database::DbUpdateFlags flags)
+bool DatabasePrivate::update(DbUpdateFlags flags)
 {
     if (!isOpen()) {
         qCWarning(LOG_QTAPK) << "update: Database is not open!";
@@ -113,7 +113,7 @@ bool DatabasePrivate::update(Database::DbUpdateFlags flags)
     return res;
 }
 
-bool DatabasePrivate::upgrade(Database::DbUpgradeFlags flags, Changeset *changes)
+bool DatabasePrivate::upgrade(DbUpgradeFlags flags, Changeset *changes)
 {
     if (!isOpen()) {
         qCWarning(LOG_QTAPK) << "upgrade: Database is not open!";
@@ -125,7 +125,7 @@ bool DatabasePrivate::upgrade(Database::DbUpgradeFlags flags, Changeset *changes
     bool ret = false;
     bool only_simulate = false;
 
-    if (flags & Database::QTAPK_UPGRADE_SIMULATE) only_simulate = true;
+    if (flags & QTAPK_UPGRADE_SIMULATE) only_simulate = true;
 
     if (apk_db_check_world(db, db->world) != 0) {
         qCWarning(LOG_QTAPK) << "upgrade: Missing repository tags. Use "
@@ -235,7 +235,7 @@ bool DatabasePrivate::add(const QString &pkgNameSpec, unsigned short solver_flag
  *                          reverse dependencies too
  * @return true on OK
  */
-bool DatabasePrivate::del(const QString &pkgNameSpec, Database::DbDelFlags flags)
+bool DatabasePrivate::del(const QString &pkgNameSpec, DbDelFlags flags)
 {
     if (!isOpen()) {
         qCWarning(LOG_QTAPK) << "del: Database is not open!";
@@ -255,7 +255,7 @@ bool DatabasePrivate::del(const QString &pkgNameSpec, Database::DbDelFlags flags
 
     // fill in deletion context
     struct del_ctx dctx = {
-        .recursive_delete = (flags & Database::QTAPK_DEL_RDEPENDS) ? 1 : 0,
+        .recursive_delete = (flags & QTAPK_DEL_RDEPENDS) ? 1 : 0,
         .world = world_copy,
         .errors = 0
     };
@@ -399,10 +399,10 @@ void DatabasePrivate::repoupdate_progress_cb(void *cb_ctx, size_t p)
      * */
 }
 
-bool DatabasePrivate::repository_update(struct apk_repository *repo, Database::DbUpdateFlags flags)
+bool DatabasePrivate::repository_update(struct apk_repository *repo, DbUpdateFlags flags)
 {
     int r = 0;
-    int verify_flag = (flags & Database::QTAPK_UPDATE_ALLOW_UNTRUSTED)
+    int verify_flag = (flags & QTAPK_UPDATE_ALLOW_UNTRUSTED)
             ? APK_SIGN_NONE : APK_SIGN_VERIFY;
     constexpr int autoupdate = 1;
 

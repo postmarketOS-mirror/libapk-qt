@@ -197,6 +197,7 @@ set(QTAPK_SOURCES
     src/QtApkDatabase.cpp
     src/QtApkChangeset.h
     src/QtApkChangeset.cpp
+    src/QtApkFlags.h
     src/QtApkPackage.h
     src/QtApkPackage.cpp
     src/QtApkRepository.h
@@ -271,6 +272,7 @@ install(
         src/QtApk
         src/QtApkDatabase.h
         src/QtApkChangeset.h
+        src/QtApkFlags.h
         src/QtApkPackage.h
         src/QtApkRepository.h
         ${PROJECT_BINARY_DIR}/qtapk_exports.h

@@ -43,7 +43,7 @@ int main(int argc, char *argv[])
         db.setFakeRoot(parser.value(root_option));
     }
 
-    if (!db.open(QtApk::Database::QTAPK_OPENF_READONLY)) {
+    if (!db.open(QtApk::QTAPK_OPENF_READONLY)) {
         qWarning() << "Failed to open APK DB!";
         return 1;
     }

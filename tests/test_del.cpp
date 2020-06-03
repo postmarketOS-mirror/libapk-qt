@@ -25,14 +25,14 @@ int main(int argc, char *argv[])
         db.setFakeRoot(parser.value(root_option));
     }
 
-    if (!db.open(QtApk::Database::QTAPK_OPENF_READWRITE)) {
+    if (!db.open(QtApk::QTAPK_OPENF_READWRITE)) {
         qWarning() << "Failed to open APK DB!";
         return 1;
     }
     qDebug() << "OK: DB was opened!";
 
     const QString pkgName(QStringLiteral("fish"));
-    if (!db.del(pkgName, QtApk::Database::QTAPK_DEL_DEFAULT)) {
+    if (!db.del(pkgName, QtApk::QTAPK_DEL_DEFAULT)) {
         qWarning() << "Failed to delete package " << pkgName;
         // this test does not return 1 on error,
         // because it fails in minimal chroot,

@@ -25,13 +25,13 @@ int main(int argc, char *argv[])
         db.setFakeRoot(parser.value(root_option));
     }
 
-    if (!db.open(QtApk::Database::QTAPK_OPENF_READWRITE)) {
+    if (!db.open(QtApk::QTAPK_OPENF_READWRITE)) {
         qWarning() << "Failed to open APK DB!";
         return 1;
     }
     qDebug() << "OK: DB was opened!";
 
-    if (!db.updatePackageIndex(QtApk::Database::QTAPK_UPDATE_ALLOW_UNTRUSTED)) {
+    if (!db.updatePackageIndex(QtApk::QTAPK_UPDATE_ALLOW_UNTRUSTED)) {
         qWarning() << "WARNING: Failed to update DB!";
         db.close();
         return 1;

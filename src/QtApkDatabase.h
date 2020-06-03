@@ -5,6 +5,7 @@
 
 #include <QString>
 #include <QVector>
+#include "QtApkFlags.h"
 #include "QtApkPackage.h"
 #include "QtApkRepository.h"
 #include "QtApkChangeset.h"
@@ -29,45 +30,6 @@ class DatabasePrivate;
  */
 class QTAPK_EXPORTS Database {
 public:
-    /**
-     * @brief The DbOpenFlags enum
-     * Used in open() method
-     */
-    enum DbOpenFlagEnum {
-        QTAPK_OPENF_READONLY = 0x1,           //! open database only for querying info
-        QTAPK_OPENF_READWRITE = 0x2,          //! open for package manipulation, may need superuser rights
-        QTAPK_OPENF_ENABLE_PROGRESSFD = 0x4,  //! open pipe channel to libapk to receive progress updates
-    };
-    Q_DECLARE_FLAGS(DbOpenFlags, DbOpenFlagEnum)
-
-    /**
-     * @brief The DbUpdateFlags enum
-     * Used in updatePackageIndex() method
-     */
-    enum DbUpdateFlags {
-        QTAPK_UPDATE_DEFAULT = 0,            //! no flags
-        QTAPK_UPDATE_ALLOW_UNTRUSTED = 1     //! allow untrusted repository sources
-    };
-
-    /**
-     * @brief The DbUpgradeFlags enum
-     * Used in upgrade() method
-     */
-    enum DbUpgradeFlags {
-        QTAPK_UPGRADE_DEFAULT = 0,    //! No flags
-        QTAPK_UPGRADE_SIMULATE = 1    //! Do not do a real upgrade, only simulate.
-                                      //! Allows to get an "upgrade plan" first
-    };
-
-    /**
-     * @brief The DbDelFlags enum
-     * Used for del() method
-     */
-    enum DbDelFlags {
-        QTAPK_DEL_DEFAULT = 0,    //! no flags
-        QTAPK_DEL_RDEPENDS = 1    //! delete package and everything that depends on it
-    };
-
     /**
      * @brief getRepositories
      * Static function that parses /etc/apk/repositories and gets
@@ -204,8 +166,6 @@ private:
     Q_DECLARE_PRIVATE(Database)
     Q_DISABLE_COPY(Database)
 };
-
-Q_DECLARE_OPERATORS_FOR_FLAGS(Database::DbOpenFlags)
 
 } // namespace QtApk
 

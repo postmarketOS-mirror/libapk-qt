@@ -42,11 +42,11 @@ public:
 
     // return read end of the pipe
     int progressFd() const { return progress_fd[0]; }
-    bool open(Database::DbOpenFlags flags);
+    bool open(DbOpenFlags flags);
     void close();
     bool isOpen() const;
-    bool update(Database::DbUpdateFlags flags);
-    bool upgrade(Database::DbUpgradeFlags flags = Database::QTAPK_UPGRADE_DEFAULT,
+    bool update(DbUpdateFlags flags);
+    bool upgrade(DbUpgradeFlags flags = QTAPK_UPGRADE_DEFAULT,
                  Changeset *changes = nullptr);
 
     /**
@@ -65,7 +65,7 @@ public:
      *                          reverse dependencies too
      * @return true on OK
      */
-    bool del(const QString &pkgNameSpec, Database::DbDelFlags flags);
+    bool del(const QString &pkgNameSpec, DbDelFlags flags);
 
     QVector<Package> get_installed_packages() const;
     QVector<Package> get_available_packages() const;
@@ -74,7 +74,7 @@ private:
     int dbopen(unsigned long open_flags);
     void dbclose();
     static void repoupdate_progress_cb(void *cb_ctx, size_t p);
-    bool repository_update(struct apk_repository *repo, Database::DbUpdateFlags flags);
+    bool repository_update(struct apk_repository *repo, DbUpdateFlags flags);
     bool internal_non_repository_check();
     bool package_name_to_apk_dependency(
             const char *pkgname,
