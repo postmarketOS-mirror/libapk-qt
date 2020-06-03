@@ -4,6 +4,8 @@
 #include <QVector>
 #include "QtApkPackage.h"
 
+// SPDX-License-Identifier: GPL-2.0-or-later
+
 #include "qtapk_exports.h"
 
 namespace QtApk {

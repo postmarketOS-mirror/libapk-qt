@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-2.0-or-later
+
 #include <QCommandLineOption>
 #include <QCommandLineParser>
 #include <QCoreApplication>

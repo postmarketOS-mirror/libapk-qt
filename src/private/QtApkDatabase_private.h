@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: GPL-2.0-or-later
+
 #ifndef H_QTAPK_DB_PRIV
 #define H_QTAPK_DB_PRIV
 
