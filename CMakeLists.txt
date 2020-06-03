@@ -195,22 +195,30 @@ target_link_libraries(apk
 set(QTAPK_PUBLIC_HEADERS
     src/QtApk
     src/QtApkDatabase.h
+    src/QtApkDatabaseAsync.h
     src/QtApkChangeset.h
     src/QtApkFlags.h
     src/QtApkPackage.h
     src/QtApkRepository.h
+    src/QtApkTransaction.h
 )
 
 set(QTAPK_SOURCES
     src/QtApkDatabase.cpp
+    src/QtApkDatabaseAsync.cpp
     src/QtApkChangeset.cpp
     src/QtApkPackage.cpp
     src/QtApkRepository.cpp
+    src/QtApkTransaction.cpp
     src/QtApk_metatypes.cpp
     src/errorstr.cpp
     src/apk_time_workaround.cpp
     src/private/QtApkDatabase_private.h
     src/private/QtApkDatabase_private.cpp
+    src/private/QtApkDatabaseAsync_private.h
+    src/private/QtApkDatabaseAsync_private.cpp
+    src/private/QtApkTransaction_private.h
+    src/private/QtApkTransaction_private.cpp
 )
 
 

@@ -24,6 +24,9 @@ struct apk_repository;
 
 namespace QtApk {
 
+
+class DatabaseAsyncPrivate;  // forward decl, we need to add it as friend
+
 class DatabasePrivate
 {
 public:
@@ -108,6 +111,7 @@ private:
     // Qt's PIMPL members
     Database *q_ptr = nullptr;
     Q_DECLARE_PUBLIC(Database)
+    friend class QtApk::DatabaseAsyncPrivate;
 
     QString fakeRoot; //! if set, libapk will operate inside this
                       //! virtual root dir

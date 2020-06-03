@@ -7,5 +7,6 @@
 #include "QtApkRepository.h"
 #include "QtApkChangeset.h"
 #include "QtApkDatabase.h"
+#include "QtApkDatabaseAsync.h"
 
 #endif
