@@ -191,16 +191,20 @@ target_link_libraries(apk
         OpenSSL::Crypto
 )
 
-set(QTAPK_SOURCES
+# public headers (also used for installing headers)
+set(QTAPK_PUBLIC_HEADERS
     src/QtApk
     src/QtApkDatabase.h
-    src/QtApkDatabase.cpp
     src/QtApkChangeset.h
-    src/QtApkChangeset.cpp
     src/QtApkFlags.h
     src/QtApkPackage.h
-    src/QtApkPackage.cpp
     src/QtApkRepository.h
+)
+
+set(QTAPK_SOURCES
+    src/QtApkDatabase.cpp
+    src/QtApkChangeset.cpp
+    src/QtApkPackage.cpp
     src/QtApkRepository.cpp
     src/errorstr.cpp
     src/apk_time_workaround.cpp
@@ -210,6 +214,7 @@ set(QTAPK_SOURCES
 
 
 add_library(apk-qt
+    ${QTAPK_PUBLIC_HEADERS}
     ${QTAPK_SOURCES}
 )
 
@@ -269,12 +274,7 @@ install(
 # Install development headers
 install(
     FILES
-        src/QtApk
-        src/QtApkDatabase.h
-        src/QtApkChangeset.h
-        src/QtApkFlags.h
-        src/QtApkPackage.h
-        src/QtApkRepository.h
+        ${QTAPK_PUBLIC_HEADERS}
         ${PROJECT_BINARY_DIR}/qtapk_exports.h
         ${PROJECT_BINARY_DIR}/QtApk_version.h
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/ApkQt
