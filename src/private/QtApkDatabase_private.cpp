@@ -95,8 +95,15 @@ bool DatabasePrivate::update(DbUpdateFlags flags)
     }
 
     // apk_repository_update() // is not public?? why, libapk??
-    // update each repo
     bool res = true;
+    char progress_buf[64] = {0}; // enough for petabytes...
+
+    // report 0%
+    int buflen = ::snprintf(progress_buf, sizeof(progress_buf), "0/%zu\n",
+                            static_cast<size_t>(db->num_repos));
+    ::write(::apk_progress_fd, progress_buf, buflen);
+
+    // update each repo
     for (unsigned int i = APK_REPOSITORY_FIRST_CONFIGURED;
          i < db->num_repos; i++)
     {
@@ -105,6 +112,15 @@ bool DatabasePrivate::update(DbUpdateFlags flags)
             continue;
         }
         res = (res && repository_update(&db->repos[i], flags));
+
+        // report progress to the same progress_fd that libapk uses
+        //     in exactly the same format as libapk does
+        if (::apk_progress_fd != 0) {
+            buflen = ::snprintf(progress_buf, sizeof(progress_buf), "%zu/%zu\n",
+                                    static_cast<size_t>(i + 1),
+                                    static_cast<size_t>(db->num_repos));
+            ::write(::apk_progress_fd, progress_buf, buflen);
+        }
     }
     qCDebug(LOG_QTAPK) << "Updated: " << db->repo_update_counter
                        << "; Update errors: " << db->repo_update_errors;
