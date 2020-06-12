@@ -206,6 +206,7 @@ set(QTAPK_SOURCES
     src/QtApkChangeset.cpp
     src/QtApkPackage.cpp
     src/QtApkRepository.cpp
+    src/QtApk_metatypes.cpp
     src/errorstr.cpp
     src/apk_time_workaround.cpp
     src/private/QtApkDatabase_private.h
