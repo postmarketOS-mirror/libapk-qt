@@ -4,7 +4,7 @@
 #define H_QTAPK_FLAGS
 
 #include <QFlags>
-
+#include <QMetaType>
 
 namespace QtApk {
 
@@ -51,5 +51,10 @@ enum DbDelFlags {
 
 
 } // namespace QtApk
+
+Q_DECLARE_METATYPE(QtApk::DbOpenFlags);
+Q_DECLARE_METATYPE(QtApk::DbUpdateFlags);
+Q_DECLARE_METATYPE(QtApk::DbUpgradeFlags);
+Q_DECLARE_METATYPE(QtApk::DbDelFlags);
 
 #endif
