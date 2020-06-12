@@ -72,6 +72,24 @@ if (BUILD_DEVELOPER_MODE)
     )
 endif()
 
+add_executable(test_async_api test_async_api.cpp)
+target_link_libraries(test_async_api apk-qt Qt5::Core)
+target_include_directories(test_async_api PRIVATE ../src ${PROJECT_BINARY_DIR})
+if (BUILD_DEVELOPER_MODE)
+    target_compile_definitions(test_async_api PRIVATE
+        QTAPK_DEVELOPER_BUILD
+    )
+endif()
+
+add_executable(test_async_api_upgrade test_async_api_upgrade.cpp)
+target_link_libraries(test_async_api_upgrade apk-qt Qt5::Core)
+target_include_directories(test_async_api_upgrade PRIVATE ../src ${PROJECT_BINARY_DIR})
+if (BUILD_DEVELOPER_MODE)
+    target_compile_definitions(test_async_api_upgrade PRIVATE
+        QTAPK_DEVELOPER_BUILD
+    )
+endif()
+
 ###################################
 # Tests are executed in order, so:
 # 1) ceate fakeroot
@@ -118,6 +136,16 @@ add_test(NAME test_changeset
 
 add_test(NAME test_progressfd
     COMMAND test_progressfd --root ${FAKEROOT_DIR}
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+)
+
+add_test(NAME test_async_api
+    COMMAND test_async_api --root ${FAKEROOT_DIR}
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+)
+
+add_test(NAME test_async_api_upgrade
+    COMMAND test_async_api_upgrade --root ${FAKEROOT_DIR}
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 )
 
