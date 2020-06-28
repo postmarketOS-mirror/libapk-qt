@@ -37,6 +37,14 @@ public:
      * @return configured repositories list
      */
     static QVector<Repository> getRepositories();
+
+    /**
+     * @brief saveRepositories
+     * Static function that saves repo URLs to /etc/apk/repositories
+     * @param repos
+     * @return true if store operation succeeded
+     */
+    static bool saveRepositories(const QVector<Repository> &repos);
     
     /**
      * @brief Database default constructor

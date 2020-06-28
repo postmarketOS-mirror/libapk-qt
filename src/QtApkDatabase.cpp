@@ -34,6 +34,30 @@ QVector<Repository> Database::getRepositories()
     return ret;
 }
 
+bool Database::saveRepositories(const QVector<Repository> &repos)
+{
+    const QString fakeRoot = qEnvironmentVariable("QTAPK_FAKEROOT", QStringLiteral("/"));
+    const QString reposFile(QStringLiteral("%1/etc/apk/repositories").arg(fakeRoot));
+    QFile f(reposFile);
+    if (!f.open(QIODevice::ReadWrite)) {
+        qCWarning(LOG_QTAPK) << "Failed to open:" << reposFile;
+        return false;
+    }
+    const QString comment(QLatin1String("/etc/apk/repositories"));
+    QString line;
+    for (const Repository &repo : repos) {
+        line.clear();
+        if (!repo.enabled) {
+            line.append(QLatin1Char('#'));
+        }
+        line.append(repo.url);
+        line.append(QLatin1Char('\n'));
+        f.write(line.toUtf8());
+    }
+    f.close();
+    return true;
+}
+
 Database::Database()
     : d_ptr(new DatabasePrivate(this))
 {
