@@ -36,8 +36,13 @@ enum DbUpdateFlags {
  */
 enum DbUpgradeFlags {
     QTAPK_UPGRADE_DEFAULT = 0,    //! No flags
-    QTAPK_UPGRADE_SIMULATE = 1    //! Do not do a real upgrade, only simulate.
+    QTAPK_UPGRADE_SIMULATE = 1,   //! Do not do a real upgrade, only simulate.
                                   //! Allows to get an "upgrade plan" first
+    QTAPK_UPGRADE_AVAILABLE = 2,  //! Resets versioned world dependencies, and changes to prefer replacing
+                                  //! or downgrading packages (instead of holding them) if the currently
+                                  //! installed package is no longer available from any repository
+    QTAPK_UPGRADE_LATEST = 4,     //! Select latest version of package (if it is not pinned), and print
+                                  //! error if it cannot be installed due to other dependencies
 };
 
 /**

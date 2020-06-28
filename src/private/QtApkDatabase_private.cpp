@@ -149,8 +149,12 @@ bool DatabasePrivate::upgrade(DbUpgradeFlags flags, Changeset *changes)
         return false;
     }
 
-    // Calculate what will be done
     unsigned short solver_flags = APK_SOLVERF_UPGRADE;
+
+    if (flags & QTAPK_UPGRADE_AVAILABLE) solver_flags |= APK_SOLVERF_AVAILABLE;
+    if (flags & QTAPK_UPGRADE_LATEST) solver_flags |= APK_SOLVERF_LATEST;
+
+    // Calculate what will be done
     r = apk_solver_solve(db, solver_flags, db->world, &changeset);
     if (r == 0) {
         ret = true;
