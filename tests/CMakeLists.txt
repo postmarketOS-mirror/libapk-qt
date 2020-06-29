@@ -90,6 +90,15 @@ if (BUILD_DEVELOPER_MODE)
     )
 endif()
 
+add_executable(test_reposconfig test_reposconfig.cpp)
+target_link_libraries(test_reposconfig apk-qt Qt5::Core)
+target_include_directories(test_reposconfig PRIVATE ../src ${PROJECT_BINARY_DIR})
+if (BUILD_DEVELOPER_MODE)
+    target_compile_definitions(test_reposconfig PRIVATE
+        QTAPK_DEVELOPER_BUILD
+    )
+endif()
+
 ###################################
 # Tests are executed in order, so:
 # 1) ceate fakeroot
@@ -146,6 +155,11 @@ add_test(NAME test_async_api
 
 add_test(NAME test_async_api_upgrade
     COMMAND test_async_api_upgrade --root ${FAKEROOT_DIR}
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+)
+
+add_test(NAME test_reposconfig
+    COMMAND test_reposconfig --root ${FAKEROOT_DIR}
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 )
 
