@@ -39,7 +39,7 @@ bool Database::saveRepositories(const QVector<Repository> &repos)
     const QString fakeRoot = qEnvironmentVariable("QTAPK_FAKEROOT", QStringLiteral("/"));
     const QString reposFile(QStringLiteral("%1/etc/apk/repositories").arg(fakeRoot));
     QFile f(reposFile);
-    if (!f.open(QIODevice::ReadWrite)) {
+    if (!f.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
         qCWarning(LOG_QTAPK) << "Failed to open:" << reposFile;
         return false;
     }
