@@ -38,6 +38,8 @@ set(QTAPK_SOURCES
     private/QtApkDatabaseAsync_private.cpp
     private/QtApkTransaction_private.h
     private/QtApkTransaction_private.cpp
+    private/libapk_c_wrappers.h
+    private/libapk_c_wrappers.c
 )
 
 
