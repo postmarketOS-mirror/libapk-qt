@@ -1,0 +1,45 @@
+---
+image: alpine:edge
+
+stages:
+    - build
+    - test
+
+.only-default: &only-default
+    only:
+        - master
+        - merge_requests
+        - tags
+
+build::alpine:
+    <<: *only-default
+    image: alpine:edge
+    stage: build
+    before_script:
+        - apk update
+        - apk add build-base qt5-qtbase-dev apk-tools-dev cmake ninja
+    script:
+        - cmake -B build/ -G"Ninja" -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=$PWD/prefix -DCMAKE_INSTALL_LIBDIR=lib -DBUILD_SHARED_LIBS=ON -DBUILD_TESTING=ON
+        - ninja -C build/ install
+        - ls -lR $PWD/prefix
+    artifacts:
+        paths:
+            - build/
+        expire_in: 1h
+# Here we use artifacts only to pass results from stage to stage,
+#  in this case we transfer "build" directory from build stage
+#  to test stage, so that we don't have to build project again
+#  in test stage. Therefore we don't need to actually keep
+#  build arifacts for a long time, delete them quickly.
+
+
+test::alpine:
+    <<: *only-default
+    image: alpine:edge
+    stage: test
+    dependencies:
+        - build::alpine
+    before_script:
+        - apk add qt5-qtbase cmake
+    script:
+        - cd build/ && env CTEST_OUTPUT_ON_FAILURE=1 ctest -v
