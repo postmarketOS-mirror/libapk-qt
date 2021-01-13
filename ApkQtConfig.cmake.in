@@ -12,6 +12,3 @@ set_target_properties(ApkQt::ApkQt
 )
 
 include(CMakeFindDependencyMacro)
-
-find_dependency(OpenSSL)
-find_dependency(ZLIB)
