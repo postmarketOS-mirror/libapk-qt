@@ -63,11 +63,23 @@ write_basic_package_version_file(
     COMPATIBILITY AnyNewerVersion
 )
 
+configure_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/apk-qt.pc.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/apk-qt.pc"
+    @ONLY
+)
+
 install(
     FILES
     "${CMAKE_CURRENT_BINARY_DIR}/ApkQtConfig.cmake"
     "${CMAKE_CURRENT_BINARY_DIR}/ApkQtConfigVersion.cmake"
     DESTINATION ${APKQT_CMAKE_CONFIG_INSTALL_DIR}
+)
+
+install(
+    FILES
+    "${CMAKE_CURRENT_BINARY_DIR}/apk-qt.pc"
+    DESTINATION "${CMAKE_INSTALL_FULL_LIBDIR}/pkgconfig"
 )
 
 add_subdirectory(src)

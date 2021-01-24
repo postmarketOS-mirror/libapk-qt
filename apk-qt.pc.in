@@ -1,0 +1,10 @@
+prefix=@CMAKE_INSTALL_PREFIX@
+libdir=${prefix}/lib
+includedir=${prefix}/include
+
+Name: ApkQt
+Description: C++/Qt bindings for Alpine Package Keeper interface
+Version: @QTAPK_VERSION_STRING@
+Libs: -lapk-qt
+Cflags: -I${includedir}/ApkQt
+Requires.private: apk
