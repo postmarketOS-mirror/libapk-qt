@@ -13,6 +13,7 @@
 
 #include <cstdlib>
 #include <cstdint>
+#include <inttypes.h>
 #include <unistd.h>
 
 class EventLoopTestRunner: public QObject
@@ -104,7 +105,7 @@ int main(int argc, char *argv[])
         std::size_t nr = ::read(sock, buf, sizeof(buf)-1);
         if (nr > 0) {
             uint64_t p1, p2;
-            ::sscanf(buf, "%lu/%lu", &p1, &p2);
+            ::sscanf(buf, "%" PRIu64 "/%" PRIu64, &p1, &p2);
             uint64_t ipercent = 0;
             if (p2) {
                 ipercent = 100 * p1 / p2;

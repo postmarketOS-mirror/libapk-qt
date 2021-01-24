@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
+#include <inttypes.h>
 #include <stdio.h>
 #include <unistd.h>
 
@@ -322,7 +323,7 @@ void DatabaseAsyncPrivate::onSocketNotifierActivated(int sock)
     std::size_t nr = ::read(sock, buf, sizeof(buf)-1);
     if (nr > 0) {
         uint64_t p1, p2;
-        ::sscanf(buf, "%lu/%lu", &p1, &p2);
+        ::sscanf(buf, "%" PRIu64 "/%" PRIu64, &p1, &p2);
         float fpercent = 0.0f;
         if (p2) {
             fpercent = 100.0f * static_cast<float>(p1) / static_cast<float>(p2);
