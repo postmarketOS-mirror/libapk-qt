@@ -24,7 +24,6 @@ include(FeatureSummary)
 
 option(BUILD_SHARED_LIBS "Build shared libraries" ON)
 option(BUILD_TESTING "Build tests (for developers)" OFF)
-option(BUILD_DEVELOPER_MODE "Developer build (extra debug output, larger binaries, only for developers!)" OFF)
 option(USE_STATIC_LIBAPK "Use statically linked version of libapk for safer upgrades" OFF)
 
 # some really really useful settings from KDE's extra-cmake-modules

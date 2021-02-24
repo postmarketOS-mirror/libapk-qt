@@ -162,15 +162,4 @@ int Database::progressFd() const
     return d->progressFd();
 }
 
-#ifdef QTAPK_DEVELOPER_BUILD
-
-void Database::print_installed()
-{
-    Q_D(Database);
-    d->print_installed();
-}
-
-#endif
-
-
 } // namespace QtApk

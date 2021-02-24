@@ -8,91 +8,36 @@ include_directories(
 
 add_executable(test_openclose test_openclose.cpp)
 target_link_libraries(test_openclose apk-qt Qt5::Core)
-if (BUILD_DEVELOPER_MODE)
-    target_compile_definitions(test_openclose PRIVATE
-        QTAPK_DEVELOPER_BUILD
-    )
-endif()
 
 add_executable(test_db_update test_db_update.cpp)
 target_link_libraries(test_db_update apk-qt Qt5::Core)
-if (BUILD_DEVELOPER_MODE)
-    target_compile_definitions(test_db_update PRIVATE
-        QTAPK_DEVELOPER_BUILD
-    )
-endif()
 
 add_executable(test_fakeroot test_fakeroot.cpp)
 target_link_libraries(test_fakeroot apk-qt Qt5::Core)
-if (BUILD_DEVELOPER_MODE)
-    target_compile_definitions(test_fakeroot PRIVATE
-        QTAPK_DEVELOPER_BUILD
-    )
-endif()
 
 add_executable(test_add test_add.cpp)
 target_link_libraries(test_add apk-qt Qt5::Core)
-if (BUILD_DEVELOPER_MODE)
-    target_compile_definitions(test_add PRIVATE
-        QTAPK_DEVELOPER_BUILD
-    )
-endif()
 
 add_executable(test_del test_del.cpp)
 target_link_libraries(test_del apk-qt Qt5::Core)
-if (BUILD_DEVELOPER_MODE)
-    target_compile_definitions(test_del PRIVATE
-        QTAPK_DEVELOPER_BUILD
-    )
-endif()
 
 add_executable(test_print_packages test_print_packages.cpp)
 target_link_libraries(test_print_packages apk-qt Qt5::Core)
-if (BUILD_DEVELOPER_MODE)
-    target_compile_definitions(test_print_packages PRIVATE
-        QTAPK_DEVELOPER_BUILD
-    )
-endif()
 
 add_executable(test_changeset test_changeset.cpp)
 target_link_libraries(test_changeset apk-qt Qt5::Core)
-if (BUILD_DEVELOPER_MODE)
-    target_compile_definitions(test_changeset PRIVATE
-        QTAPK_DEVELOPER_BUILD
-    )
-endif()
 
 add_executable(test_progressfd test_progressfd.cpp)
 target_link_libraries(test_progressfd apk-qt Qt5::Core)
-if (BUILD_DEVELOPER_MODE)
-    target_compile_definitions(test_progressfd PRIVATE
-        QTAPK_DEVELOPER_BUILD
-    )
-endif()
 
 add_executable(test_async_api test_async_api.cpp)
 target_link_libraries(test_async_api apk-qt Qt5::Core)
-if (BUILD_DEVELOPER_MODE)
-    target_compile_definitions(test_async_api PRIVATE
-        QTAPK_DEVELOPER_BUILD
-    )
-endif()
 
 add_executable(test_async_api_upgrade test_async_api_upgrade.cpp)
 target_link_libraries(test_async_api_upgrade apk-qt Qt5::Core)
-if (BUILD_DEVELOPER_MODE)
-    target_compile_definitions(test_async_api_upgrade PRIVATE
-        QTAPK_DEVELOPER_BUILD
-    )
-endif()
 
 add_executable(test_reposconfig test_reposconfig.cpp)
 target_link_libraries(test_reposconfig apk-qt Qt5::Core)
-if (BUILD_DEVELOPER_MODE)
-    target_compile_definitions(test_reposconfig PRIVATE
-        QTAPK_DEVELOPER_BUILD
-    )
-endif()
 
 ###################################
 # Tests are executed in order, so:

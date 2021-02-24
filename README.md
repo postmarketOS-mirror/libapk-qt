@@ -33,7 +33,6 @@ Other useful cmake build options:
 
  * BUILD_SHARED_LIBS (default ON) shared libs, that's often what we want
  * BUILD_TESTING (default OFF) build tests and enable `make test` target.
- * BUILD_DEVELOPER_MODE (default OFF) developer-only extra debug information. Don't enable in production!
  * USE_STATIC_LIBAPK (default OFF) Link static libapk.a for safer upgrades (do not depend on shared libapk.so)
 
 ### Running tests

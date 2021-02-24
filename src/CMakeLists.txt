@@ -49,14 +49,6 @@ add_library(apk-qt
 )
 
 
-if (BUILD_DEVELOPER_MODE)
-    target_compile_definitions(apk-qt PRIVATE
-        QTAPK_DEVELOPER_BUILD
-    )
-    message(STATUS "You have enabled DEVELOPER_BUILD! Don't use it in production, it is for development only!")
-endif()
-
-
 target_link_libraries(apk-qt PUBLIC Qt5::Core)
 
 if (USE_STATIC_LIBAPK)

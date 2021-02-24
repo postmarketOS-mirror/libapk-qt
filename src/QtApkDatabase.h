@@ -163,12 +163,6 @@ public:
      */
     int progressFd() const;
 
-#ifdef QTAPK_DEVELOPER_BUILD
-    // extra debugging functions here, not part of
-    //    public library interface
-    void print_installed();
-#endif
-
 private:
     DatabasePrivate *d_ptr = nullptr;
     Q_DECLARE_PRIVATE(Database)
