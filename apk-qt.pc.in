@@ -7,4 +7,5 @@ Description: C++/Qt bindings for Alpine Package Keeper interface
 Version: @QTAPK_VERSION_STRING@
 Libs: -lapk-qt
 Cflags: -I${includedir}/ApkQt
+Requires: Qt5Core
 Requires.private: apk
